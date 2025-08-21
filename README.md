@@ -330,7 +330,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 - 🐛 **Issues**: [GitHub Issues](https://github.com/alchemistical/PineOpt/issues)
 - 💡 **Feature Requests**: [GitHub Discussions](https://github.com/alchemistical/PineOpt/discussions)
-- 📧 **Contact**: hadinemm@gmail.com
+- 📧 **Contact**: 
 
 ---
 
