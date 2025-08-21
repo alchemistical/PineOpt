@@ -1,0 +1,75 @@
+// Pine Script v5 Grammar (Subset for MVP)
+// Handles: variables, inputs, ta functions, strategy calls, basic expressions
+
+start: (statement)*
+
+statement: version_statement
+         | indicator_statement  
+         | strategy_statement
+         | input_statement
+         | variable_declaration
+         | assignment
+         | strategy_call
+         | expression_statement
+
+// Version and script type
+version_statement: "//@version=" NUMBER
+indicator_statement: "indicator" "(" string ("," argument)* ")"
+strategy_statement: "strategy" "(" string ("," argument)* ")"
+
+// Input declarations
+input_statement: NAME "=" "input" "." input_type "(" argument_list ")"
+input_type: "int" | "float" | "bool" | "string"
+
+// Variable declarations
+variable_declaration: "var" NAME "=" expression
+                   | "varip" NAME "=" expression
+                   | NAME "=" expression
+
+// Assignments
+assignment: NAME ":=" expression
+
+// Strategy API calls
+strategy_call: "strategy" "." strategy_method "(" argument_list ")"
+strategy_method: "entry" | "exit" | "close"
+
+// Expressions
+expression: ternary
+ternary: logical_or ("?" expression ":" expression)?
+logical_or: logical_and ("or" logical_and)*
+logical_and: equality ("and" equality)*
+equality: comparison (("==" | "!=") comparison)*
+comparison: addition ((">" | ">=" | "<" | "<=") addition)*
+addition: multiplication (("+" | "-") multiplication)*
+multiplication: unary (("*" | "/" | "%") unary)*
+unary: ("+" | "-" | "not")? factor
+factor: primary ("[" expression "]")?
+primary: NUMBER
+       | string
+       | boolean
+       | NAME
+       | function_call
+       | "(" expression ")"
+
+// Function calls (ta.*, math.*, etc.)
+function_call: NAME ("." NAME)? "(" argument_list ")"
+
+// Arguments and literals
+argument_list: (argument ("," argument)*)?
+argument: NAME "=" expression | expression
+expression_statement: expression
+
+// Literals
+string: ESCAPED_STRING
+boolean: "true" | "false"
+
+// Tokens
+NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
+NUMBER: /\d+(\.\d+)?/
+ESCAPED_STRING: /"([^"\\]|\\.)*"/
+
+// Whitespace and comments
+%import common.WS
+%import common.CPP_COMMENT
+%ignore WS
+%ignore CPP_COMMENT

@@ -1,0 +1,29 @@
+// Simplified Pine Script Grammar for MVP
+start: statement*
+
+statement: assignment
+         | function_call
+         | if_statement
+
+assignment: NAME "=" expression
+          | NAME ":=" expression
+
+expression: function_call
+          | NAME
+          | NUMBER
+          | string
+
+function_call: NAME "(" argument_list? ")"
+             | NAME "." NAME "(" argument_list? ")"
+
+if_statement: "if" expression
+
+argument_list: expression ("," expression)*
+
+string: ESCAPED_STRING
+NAME: /[a-zA-Z_][a-zA-Z0-9_]*/
+NUMBER: /\d+(\.\d+)?/
+ESCAPED_STRING: /"([^"\\]|\\.)*"/
+
+%import common.WS
+%ignore WS

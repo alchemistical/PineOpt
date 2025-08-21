@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(python:*)",
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(curl:*)",
+      "Bash(pip uninstall:*)",
+      "Bash(PORT=5005 python:*)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(export TV_USERNAME=\"bitfolio\")",
+      "Bash(export TV_PASSWORD=\"48d9fd73defc$8fc4741@4520d224ae8324\")",
+      "Bash(TV_USERNAME=\"bitfolio\" TV_PASSWORD=\"48d9fd73defc$8fc4741@4520d224ae8324\" PORT=5005 python3 api/server.py)",
+      "WebFetch(domain:docs.tardis.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:binance-docs.github.io)",
+      "Bash(mv:*)",
+      "Bash(PORT=5006 python3:*)",
+      "WebFetch(domain:tradingview.github.io)",
+      "Bash(npm install:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(PORT=5001 python3:*)",
+      "Bash(npm run build:*)",
+      "Bash(grep:*)",
+      "WebFetch(domain:tradingview.github.io)",
+      "Bash(git config:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

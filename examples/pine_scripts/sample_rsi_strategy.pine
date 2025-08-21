@@ -1,0 +1,26 @@
+//@version=5
+strategy("Sample RSI Strategy", overlay=false, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+
+// Input parameters
+rsi_length = input.int(14, title="RSI Length", minval=1, maxval=100)
+rsi_overbought = input.float(70.0, title="RSI Overbought Level", minval=50, maxval=100)
+rsi_oversold = input.float(30.0, title="RSI Oversold Level", minval=0, maxval=50)
+
+// Calculate RSI
+rsi_value = ta.rsi(close, rsi_length)
+
+// Define entry conditions
+long_condition = ta.crossover(rsi_value, rsi_oversold)
+short_condition = ta.crossunder(rsi_value, rsi_overbought)
+
+// Execute trades
+if long_condition
+    strategy.entry("Long", strategy.long)
+
+if short_condition
+    strategy.entry("Short", strategy.short)
+
+// Plot RSI
+plot(rsi_value, title="RSI", color=color.purple)
+hline(rsi_overbought, title="Overbought", color=color.red)
+hline(rsi_oversold, title="Oversold", color=color.green)

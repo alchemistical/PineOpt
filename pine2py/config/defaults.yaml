@@ -1,0 +1,36 @@
+# Pine2Py Configuration
+pine_version: "v5"
+supported_features:
+  - "indicator"
+  - "strategy" 
+  - "input.*"
+  - "var/varip"
+  - "ta.* functions"
+  - "strategy.entry/exit/close"
+  - "basic operators"
+  - "indexing [1]"
+
+# Code generation settings
+codegen:
+  include_docstrings: true
+  add_type_hints: true
+  validate_outputs: true
+  
+# Runtime adapter settings  
+runtime:
+  fillna_default: 0
+  enable_warnings: true
+  strict_mode: false
+
+# Parsing configuration
+parser:
+  max_file_size_mb: 5
+  timeout_seconds: 30
+  ignore_plots: true
+  ignore_alerts: true
+
+# Validation settings
+validation:
+  run_smoke_test: true
+  check_imports: true
+  verify_signals: true

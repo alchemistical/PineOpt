@@ -1,0 +1,21 @@
+//@version=5
+strategy("Simple RSI Strategy", overlay=true)
+
+// Input parameters
+rsi_length = input.int(14, title="RSI Length", minval=1, maxval=100)
+rsi_overbought = input.float(70.0, title="RSI Overbought", minval=50, maxval=100)
+rsi_oversold = input.float(30.0, title="RSI Oversold", minval=0, maxval=50)
+
+// Calculate RSI
+rsi_value = ta.rsi(close, rsi_length)
+
+// Entry conditions
+long_condition = ta.crossover(rsi_value, rsi_oversold)
+short_condition = ta.crossunder(rsi_value, rsi_overbought)
+
+// Strategy entries
+if long_condition
+    strategy.entry("Long", strategy.long)
+
+if short_condition
+    strategy.entry("Short", strategy.short)
