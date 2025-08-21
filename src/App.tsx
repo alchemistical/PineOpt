@@ -15,6 +15,7 @@ import DashboardLayout, { DashboardView } from './components/DashboardLayout';
 import OverviewDashboard from './components/OverviewDashboard';
 import DataImportView from './components/DataImportView';
 import PineConverterView from './components/PineConverterView';
+import FuturesMarketView from './components/FuturesMarketView';
 import { Settings, FileText, Activity, Wrench } from 'lucide-react';
 
 // Placeholder components for upcoming features
@@ -121,10 +122,10 @@ function App() {
   const renderView = () => {
     switch (currentView) {
       case 'overview':
-        // Test: Try loading OverviewDashboard first
         return <OverviewDashboard onNavigate={setCurrentView} />;
+      case 'futures':
+        return <FuturesMarketView />;
       case 'data':
-        // Test: Try loading DataImportView gradually
         try {
           return <DataImportView />;
         } catch (error) {

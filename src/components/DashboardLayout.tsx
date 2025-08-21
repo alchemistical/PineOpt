@@ -12,7 +12,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-export type DashboardView = 'overview' | 'data' | 'converter' | 'strategies' | 'analytics' | 'settings';
+export type DashboardView = 'overview' | 'data' | 'futures' | 'converter' | 'strategies' | 'analytics' | 'settings';
 
 interface DashboardLayoutProps {
   currentView: DashboardView;
@@ -35,10 +35,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       description: 'Crypto strategy lab overview' 
     },
     { 
+      id: 'futures', 
+      label: 'Futures Markets', 
+      icon: BarChart3, 
+      description: 'USDT perpetual contracts with advanced charts' 
+    },
+    { 
       id: 'data', 
-      label: 'Live Charts', 
-      icon: TrendingUp, 
-      description: 'Interactive OHLC charts & data import' 
+      label: 'Data Import', 
+      icon: Database, 
+      description: 'Import & manage historical data' 
     },
     { 
       id: 'converter', 
