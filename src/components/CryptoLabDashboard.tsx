@@ -21,7 +21,11 @@ import {
   Bell,
   AlertCircle,
   CheckCircle,
-  RefreshCw
+  RefreshCw,
+  Sparkles,
+  Bot,
+  Database,
+  Cpu
 } from 'lucide-react';
 
 interface MarketData {
@@ -85,7 +89,7 @@ const CryptoLabDashboard: React.FC<CryptoLabDashboardProps> = ({ onNavigate }) =
   const loadDashboardData = async () => {
     try {
       // Load real strategies from our API
-      const strategiesResponse = await fetch('http://localhost:5001/api/strategies');
+      const strategiesResponse = await fetch('http://localhost:5007/api/strategies');
       const strategiesData = await strategiesResponse.json();
       
       if (strategiesData.success) {
@@ -139,7 +143,7 @@ const CryptoLabDashboard: React.FC<CryptoLabDashboardProps> = ({ onNavigate }) =
 
       // Load real market data from Binance API
       try {
-        const marketResponse = await fetch('http://localhost:5001/api/market/overview');
+        const marketResponse = await fetch('http://localhost:5007/api/market/overview');
         const marketData = await marketResponse.json();
         
         if (marketData.success && marketData.data.tickers) {

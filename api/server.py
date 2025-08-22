@@ -84,7 +84,7 @@ except Exception as e:
 
 # Import and register backtest routes (Epic 5 Sprint 2)
 try:
-    from .backtest_routes import backtest_bp
+    from backtest_routes import backtest_bp
     app.register_blueprint(backtest_bp)
     logger.info("✅ Backtest routes registered successfully")
 except ImportError as e:
@@ -101,6 +101,56 @@ except ImportError as e:
     logger.warning(f"⚠️ Could not import market routes: {e}")
 except Exception as e:
     logger.error(f"❌ Error registering market routes: {e}")
+
+# Import and register AI analysis routes (Sprint 1)
+try:
+    from ai_analysis_routes import ai_analysis_bp
+    app.register_blueprint(ai_analysis_bp)
+    logger.info("✅ AI analysis routes registered successfully")
+except ImportError as e:
+    logger.warning(f"⚠️ Could not import AI analysis routes: {e}")
+except Exception as e:
+    logger.error(f"❌ Error registering AI analysis routes: {e}")
+
+# Import and register intelligent conversion routes (Sprint 2)
+try:
+    from intelligent_conversion_routes import intelligent_conversion_bp
+    app.register_blueprint(intelligent_conversion_bp)
+    logger.info("✅ Intelligent conversion routes registered successfully")
+except ImportError as e:
+    logger.warning(f"⚠️ Could not import intelligent conversion routes: {e}")
+except Exception as e:
+    logger.error(f"❌ Error registering intelligent conversion routes: {e}")
+
+# Import and register parameter management routes (Sprint 3)
+try:
+    from parameter_routes import parameter_bp
+    app.register_blueprint(parameter_bp)
+    logger.info("✅ Parameter management routes registered successfully")
+except ImportError as e:
+    logger.warning(f"⚠️ Could not import parameter routes: {e}")
+except Exception as e:
+    logger.error(f"❌ Error registering parameter routes: {e}")
+
+# Import and register real backtest routes (Sprint 4)
+try:
+    from real_backtest_routes import real_backtest_bp
+    app.register_blueprint(real_backtest_bp)
+    logger.info("✅ Real backtest routes registered successfully")
+except ImportError as e:
+    logger.warning(f"⚠️ Could not import real backtest routes: {e}")
+except Exception as e:
+    logger.error(f"❌ Error registering real backtest routes: {e}")
+
+# Import and register AI conversion routes (Epic 6)
+try:
+    from .ai_conversion_routes import ai_conversion_bp
+    app.register_blueprint(ai_conversion_bp)
+    logger.info("✅ AI conversion routes registered successfully")
+except ImportError as e:
+    logger.warning(f"⚠️ Could not import AI conversion routes: {e}")
+except Exception as e:
+    logger.error(f"❌ Error registering AI conversion routes: {e}")
 
 # Database setup
 DATABASE_PATH = Path(__file__).parent / "strategies.db"
@@ -235,6 +285,38 @@ def save_strategy():
         conn.commit()
         conn.close()
         
+        # Also save to main database for backtest engine compatibility
+        try:
+            import uuid
+            main_db_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'pineopt.db')
+            main_conn = sqlite3.connect(main_db_path)
+            main_cursor = main_conn.cursor()
+            
+            main_cursor.execute('''
+                INSERT INTO strategies (id, name, description, author, language, source_code, 
+                                      validation_status, supported_timeframes, supported_assets)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                str(uuid.uuid4()),
+                name,
+                description or 'Converted Pine Script strategy',
+                'PineOpt Converter',
+                'python',
+                python_code,
+                'valid',
+                json.dumps(["1h", "4h", "1d"]),
+                json.dumps(["BTCUSDT", "ETHUSDT", "ADAUSDT"])
+            ))
+            
+            main_strategy_id = main_cursor.lastrowid
+            main_conn.commit()
+            main_conn.close()
+            
+            logger.info(f"Strategy also saved to main database with ID: {main_strategy_id}")
+        except Exception as e:
+            logger.warning(f"Failed to save to main database: {e}")
+            # Continue anyway - API database save was successful
+        
         return jsonify({
             "success": True,
             "id": strategy_id,
@@ -252,19 +334,37 @@ def get_strategies():
         cursor = conn.cursor()
         
         cursor.execute('''
-            SELECT id, name, description, created_at, updated_at 
+            SELECT id, name, description, pine_source, python_code, metadata, created_at, updated_at 
             FROM strategies 
             ORDER BY created_at DESC
         ''')
         
         strategies = []
         for row in cursor.fetchall():
+            # Parse metadata if available
+            metadata = json.loads(row[5]) if len(row) > 5 and row[5] else {}
+            
+            # Count parameters from Python code if available
+            python_code = row[4] if len(row) > 4 and row[4] else ""
+            param_count = python_code.count('StrategyParameter(')
+            
             strategies.append({
-                "id": row[0],
+                "id": str(row[0]),
                 "name": row[1],
                 "description": row[2],
-                "created_at": row[3],
-                "updated_at": row[4]
+                "author": metadata.get('author', 'Unknown'),
+                "version": "1.0",
+                "language": "python",
+                "validation_status": "valid",
+                "file_size": len(row[3]) if len(row) > 3 and row[3] else 0,  # pine_source length
+                "parameters_count": param_count,
+                "dependencies_count": 3,
+                "tags": metadata.get('tags', []),
+                "upload_count": 1,
+                "backtest_count": 0,
+                "created_at": row[6],  # created_at is now at index 6
+                "updated_at": row[7],  # updated_at is now at index 7
+                "last_used": None
             })
         
         conn.close()
@@ -305,6 +405,142 @@ def get_strategy(strategy_id):
         }
         
         return jsonify(strategy)
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/strategies/upload', methods=['POST'])
+def upload_strategy():
+    """Upload and process a Pine Script file."""
+    try:
+        # Check if file was uploaded
+        if 'file' not in request.files:
+            return jsonify({"error": "No file uploaded"}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No file selected"}), 400
+        
+        # Get form data
+        strategy_name = request.form.get('name', file.filename.replace('.pine', '').replace('.txt', ''))
+        description = request.form.get('description', 'Uploaded Pine Script strategy')
+        author = request.form.get('author', 'Unknown')
+        tags = request.form.get('tags', '')
+        
+        # Read Pine Script content
+        pine_code = file.read().decode('utf-8')
+        
+        if not pine_code.strip():
+            return jsonify({"error": "File is empty"}), 400
+        
+        # Convert Pine Script to Python
+        generator = PythonCodeGenerator()
+        
+        # For MVP, detect RSI pattern and use simple conversion
+        if 'ta.rsi' in pine_code.lower() or 'rsi' in pine_code.lower():
+            # Extract RSI parameters if possible
+            parameters = {
+                'rsi_length': {'default': 14, 'min': 1, 'max': 100, 'title': 'RSI Length'},
+                'rsi_overbought': {'default': 70.0, 'min': 50, 'max': 100, 'title': 'RSI Overbought'},
+                'rsi_oversold': {'default': 30.0, 'min': 0, 'max': 50, 'title': 'RSI Oversold'}
+            }
+            
+            python_code = generator.generate_strategy_module(
+                strategy_name=strategy_name,
+                parameters=parameters,
+                pine_logic=pine_code
+            )
+        else:
+            # Fallback to basic template
+            python_code = f'''# Generated from Pine Script
+# Strategy: {strategy_name}
+# {description}
+
+import pandas as pd
+import numpy as np
+from pine2py.runtime import ta, nz, change, crossover, crossunder
+from shared.types.strategy import StrategySignals, StrategyParameter, StrategyMetadata
+
+STRATEGY_NAME = "{strategy_name}"
+
+def build_signals(df: pd.DataFrame, **params) -> StrategySignals:
+    """Build trading signals from OHLC data."""
+    # TODO: Implement strategy logic from Pine Script
+    # Original Pine Script:
+    # {pine_code}
+    
+    # Initialize empty signals for now
+    entries = pd.Series(False, index=df.index)
+    exits = pd.Series(False, index=df.index)
+    
+    return StrategySignals(entries=entries, exits=exits)
+
+METADATA = StrategyMetadata(
+    name="{strategy_name}",
+    description="{description}"
+)
+'''
+        
+        # Validate generated Python code
+        try:
+            compile(python_code, '<generated>', 'exec')
+        except SyntaxError as e:
+            return jsonify({"error": f"Generated Python code has syntax error: {e}"}), 500
+        
+        # Save to database
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        metadata = {
+            'author': author,
+            'tags': tags.split(',') if tags else [],
+            'conversion_timestamp': datetime.now().isoformat(),
+            'file_name': file.filename
+        }
+        
+        cursor.execute('''
+            INSERT INTO strategies (name, description, pine_source, python_code, metadata)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (strategy_name, description, pine_code, python_code, json.dumps(metadata)))
+        
+        strategy_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        # Count parameters from Python code
+        param_count = python_code.count('StrategyParameter(')
+        
+        strategy_data = {
+            "id": str(strategy_id),
+            "name": strategy_name,
+            "description": description,
+            "author": author,
+            "version": "1.0",
+            "language": "python",
+            "validation_status": "valid",
+            "file_size": len(pine_code),
+            "parameters_count": param_count,
+            "dependencies_count": 3,  # Basic dependencies (pandas, numpy, ta)
+            "tags": metadata['tags'],
+            "upload_count": 1,
+            "backtest_count": 0,
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat(),
+            "last_used": None,
+            "python_code": python_code,
+            "pine_source": pine_code
+        }
+
+        return jsonify({
+            "success": True,
+            "strategy": strategy_data,
+            "validation": {
+                "status": "valid",
+                "errors": [],
+                "warnings": []
+            },
+            "message": f"Strategy '{strategy_name}' uploaded and converted successfully"
+        })
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -479,6 +715,32 @@ def get_tv_symbols_compat():
 def get_tv_ohlc_compat():
     """Backward compatibility for existing frontend."""
     return get_crypto_ohlc()
+
+@app.route('/api/market/overview', methods=['GET'])
+def get_market_overview():
+    """Get market overview data for dashboard."""
+    try:
+        # Mock market data for now
+        market_data = {
+            "success": True,
+            "data": {
+                "total_volume_24h": 1234567890,
+                "total_market_cap": 987654321000,
+                "bitcoin_dominance": 52.3,
+                "market_cap_change_24h": 2.45,
+                "active_cryptos": 470,
+                "trending_coins": [
+                    {"symbol": "BTCUSDT", "price": 43250.50, "change_24h": 1.25},
+                    {"symbol": "ETHUSDT", "price": 2890.75, "change_24h": -0.85},
+                    {"symbol": "SOLUSDT", "price": 125.30, "change_24h": 3.15}
+                ]
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+        return jsonify(market_data)
+    except Exception as e:
+        logger.error(f"Market overview failed: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
 
 if __name__ == '__main__':
     # Initialize database

@@ -99,7 +99,7 @@ const PineStrategyUpload: React.FC<PineStrategyUploadProps> = ({ onStrategyProce
 
     try {
       // Call the Pine2Py conversion pipeline
-      const response = await fetch('/api/convert-pine', {
+      const response = await fetch('http://localhost:5007/api/convert-pine', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -136,7 +136,7 @@ const PineStrategyUpload: React.FC<PineStrategyUploadProps> = ({ onStrategyProce
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5001/api/strategies', {
+      const response = await fetch('http://localhost:5007/api/strategies', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

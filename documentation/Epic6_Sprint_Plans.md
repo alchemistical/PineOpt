@@ -2,11 +2,44 @@
 
 ## 🎯 **Epic Overview**
 
-**Epic Goal**: Transform PineOpt's conversion engine from basic pattern matching to professional AST-based Pine Script v6 conversion with 95%+ accuracy.
+**Epic Goal**: Transform PineOpt's conversion engine from basic pattern matching to professional AST-based Pine Script v6 conversion with 95%+ accuracy. Includes comprehensive AI strategy analysis system for professional-grade quantitative assessment.
 
 **Duration**: 6 Sprints (12 weeks)  
 **Team Size**: 2-3 developers  
 **Priority**: High - Strategic differentiation opportunity
+
+## **🤖 AI Strategy Analysis System**
+
+### **Expert Quantitative Developer Analysis**
+Epic 6 includes a comprehensive AI analysis system that acts as an expert quantitative developer, providing thorough strategy assessments using advanced prompts:
+
+**Analysis Prompt**: *"You are an expert quantitative developer specializing in algorithmic trading strategies. Your task is to thoroughly analyze the provided strategy code file, which implements a quantitative trading approach. Begin by reading and parsing the entire code to identify its core components, including data inputs (e.g., market data sources, indicators, or signals), logic flow (e.g., entry/exit conditions, risk management rules, position sizing), key algorithms or models (e.g., moving averages, machine learning elements, or optimization techniques), and output mechanisms (e.g., trade signals, performance metrics). Provide a comprehensive breakdown of the strategy's features, such as asset classes targeted, timeframes, backtesting assumptions, and any dependencies on external libraries or APIs. Explain the underlying logic step-by-step, highlighting strengths (e.g., robustness to market volatility), potential weaknesses (e.g., overfitting risks or parameter sensitivity), and edge cases (e.g., handling of slippage, commissions, or extreme events). Include all necessary information to fully understand its functionalities, such as mathematical formulations, pseudocode summaries for complex sections, and recommendations for improvements or testing. Structure your analysis clearly with sections for overview, detailed logic, risk analysis, and implementation notes, ensuring the output is objective, data-driven, and actionable for deployment or refinement."*
+
+### **Analysis Components**
+- **Core Component Identification**: Data inputs, logic flow, key algorithms, output mechanisms
+- **Feature Breakdown**: Asset classes, timeframes, dependencies, backtesting assumptions
+- **Step-by-Step Logic Analysis**: Entry/exit conditions, risk management, position sizing
+- **Risk Assessment**: Strengths, weaknesses, edge cases, robustness analysis
+- **Mathematical Formulations**: Formal representations of indicators and algorithms
+- **Pseudocode Generation**: Simplified algorithmic representations for complex sections
+- **Expert Recommendations**: Improvements, testing strategies, deployment guidance
+- **Implementation Notes**: Code quality, performance, deployment readiness
+
+### **Full Analysis Report Output**
+The system generates comprehensive reports structured as:
+1. **Overview** - Strategy classification, complexity scoring, core components
+2. **Detailed Logic** - Step-by-step breakdown of trading logic and signal generation
+3. **Risk Analysis** - Strengths, weaknesses, edge cases, and risk metrics
+4. **Implementation Notes** - Code quality, performance characteristics, deployment readiness
+5. **Expert Recommendations** - Prioritized improvements and testing requirements
+6. **Mathematical Formulations** - Formal representations of all indicators and calculations
+7. **Pseudocode Summaries** - Algorithmic breakdowns for complex sections
+
+### **Integration with Upload Workflow**
+- Seamless integration with existing strategy upload components
+- Real-time analysis during strategy upload process  
+- Professional-grade analysis reports for both Pine Script and Python strategies
+- Enhanced frontend components for displaying comprehensive analysis results
 
 ---
 
@@ -461,10 +494,12 @@ Integrate Epic 6 backend with frontend UI and optimize user experience.
 
 ---
 
-# 🏃‍♂️ **Sprint 6: Production Optimization & Launch** *(Week 11-12)*
+# 🏃‍♂️ **Sprint 6: Production Optimization & Jesse Framework Integration** *(Week 11-12)*
 
 ## **Sprint Goal**
-Optimize Epic 6 for production deployment and launch advanced Pine Script conversion engine.
+Optimize Epic 6 for production deployment, integrate Jesse Framework for advanced backtesting, and launch the complete conversion engine.
+
+> **⚠️ BUILD REQUIREMENT**: Jesse Framework integration will need to be built as a separate module to maintain architecture integrity and provide optional advanced backtesting capabilities alongside existing backtesting engines.
 
 ### **🔧 Development Tasks**
 
@@ -504,70 +539,102 @@ Optimize Epic 6 for production deployment and launch advanced Pine Script conver
 - [ ] Alerting catches issues before users notice
 - [ ] Usage analytics inform product decisions
 
-#### **Task 6.3: Documentation & Training** *(2 days)*
+#### **Task 6.3: Jesse Framework Integration** *(3 days)*
+- **Owner**: Backend Developer
+- **Priority**: High
+- **Dependencies**: Task 6.2
+
+**Subtasks**:
+- [ ] Add Jesse Framework to requirements_enhanced.txt
+- [ ] Create `research/backtest/jesse_adapter.py` module
+- [ ] Implement Pine-to-Jesse strategy conversion
+- [ ] Extend BacktestEngine with Jesse option
+- [ ] Add Jesse engine selector to frontend
+- [ ] Create Jesse-specific validation and testing
+- [ ] Update API endpoints with engine parameter
+
+**Acceptance Criteria**:
+- [ ] Jesse Framework successfully integrated as optional engine
+- [ ] Pine strategies convert to Jesse format with 90%+ accuracy
+- [ ] Users can select between PineOpt and Jesse engines
+- [ ] Performance comparison tools available
+- [ ] Backward compatibility maintained
+- [ ] Comprehensive testing for Jesse integration
+
+#### **Task 6.4: Documentation & Training** *(2 days)*
 - **Owner**: Technical Writer/Developer
 - **Priority**: Medium
-- **Dependencies**: Task 6.2
+- **Dependencies**: Task 6.3
 
 **Subtasks**:
 - [ ] Create comprehensive Epic 6 documentation
 - [ ] Update API documentation with new endpoints
-- [ ] Create user guides for advanced features
+- [ ] Create user guides for advanced features including Jesse
+- [ ] Document Jesse Framework integration and usage
 - [ ] Record demo videos for Pine Script v6 conversion
-- [ ] Create troubleshooting guides
+- [ ] Create troubleshooting guides for Jesse integration
+- [ ] Document backtesting engine comparison
 
 **Acceptance Criteria**:
-- [ ] Documentation covers all Epic 6 features
-- [ ] API docs are accurate and complete
-- [ ] User guides enable self-service adoption
-- [ ] Demo videos showcase key capabilities
+- [ ] Documentation covers all Epic 6 features including Jesse
+- [ ] API docs include Jesse-related endpoints
+- [ ] User guides enable self-service adoption of all features
+- [ ] Jesse integration documented with examples
+- [ ] Demo videos showcase key capabilities including engine options
 
 ### **🚀 Deployment Tasks**
 
-#### **Task 6.4: Production Deployment** *(2 days)*
+#### **Task 6.5: Production Deployment** *(2 days)*
 - **Owner**: DevOps/Team Lead
 - **Priority**: Critical
 - **Dependencies**: Tasks 6.1-6.3
 
 **Subtasks**:
-- [ ] Deploy Epic 6 to staging environment
-- [ ] Conduct comprehensive staging validation
+- [ ] Deploy Epic 6 with Jesse integration to staging environment
+- [ ] Conduct comprehensive staging validation including Jesse features
 - [ ] Execute production deployment plan
 - [ ] Monitor system stability post-deployment
 - [ ] Implement rollback procedures if needed
+- [ ] Validate Jesse Framework availability and performance
 
 **Acceptance Criteria**:
-- [ ] Staging deployment validates all features
+- [ ] Staging deployment validates all features including Jesse integration
+- [ ] Jesse Framework operates correctly in production environment
 - [ ] Production deployment executes smoothly
-- [ ] System monitoring shows stable performance
+- [ ] System monitoring shows stable performance for all engines
 - [ ] Rollback procedures tested and ready
 
 ### **📋 Sprint 6 Deliverables**
 - [x] Production-optimized Epic 6 system
+- [x] Jesse Framework integration as optional backtesting engine
 - [x] Comprehensive monitoring and alerting
-- [x] Complete documentation and training materials
-- [x] Successful production deployment
-- [x] Epic 6 launch and user communication
+- [x] Complete documentation and training materials including Jesse
+- [x] Successful production deployment with Jesse support
+- [x] Epic 6 launch and user communication with engine options
 
 ---
 
 # 📊 **Epic 6 Success Metrics**
 
 ## **Technical Metrics**
-- **Conversion Accuracy**: >95% semantic equivalence
+- **Conversion Accuracy**: >95% semantic equivalence (both PineOpt and Jesse engines)
 - **Performance**: <30 seconds conversion time for complex strategies
 - **Feature Coverage**: >80% Pine Script v6 features supported
 - **System Reliability**: 99.9% uptime for conversion services
+- **Jesse Integration**: >90% Pine-to-Jesse conversion accuracy
+- **Engine Performance**: Jesse engine within 2x speed of PineOpt engine
 
 ## **User Experience Metrics**
-- **Conversion Success Rate**: >90% successful conversions
+- **Conversion Success Rate**: >90% successful conversions across both engines
 - **User Satisfaction**: >4.5/5.0 rating for conversion quality
 - **Feature Adoption**: >70% of users try Epic 6 features within 30 days
+- **Jesse Adoption**: >40% of users try Jesse engine within 60 days
 - **Support Tickets**: <5% increase despite major feature launch
 
 ## **Business Metrics**
-- **Market Differentiation**: First Pine Script v6 conversion platform
+- **Market Differentiation**: First Pine Script v6 conversion platform with Jesse integration
 - **Competitive Advantage**: 50%+ better conversion accuracy than alternatives
+- **Engine Flexibility**: Only platform offering multiple backtesting engine options
 - **User Retention**: 20%+ improvement in user engagement
 - **Revenue Impact**: 15%+ increase in premium subscriptions
 

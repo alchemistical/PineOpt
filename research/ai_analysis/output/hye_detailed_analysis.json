@@ -1,0 +1,153 @@
+{
+  "strategy_name": "HYE Combo Market Strategy",
+  "dual_logic_system": {},
+  "core_indicators": {},
+  "parameters": {
+    "vwap_periods": {},
+    "rsi_settings": {},
+    "ichimoku_periods": {
+      "slowtenkansenPeriod": "9",
+      "slowkijunsenPeriod": "13",
+      "fasttenkansenPeriod": "3",
+      "fastkijunsenPeriod": "7"
+    },
+    "bollinger_bands": {
+      "BBlength": "20",
+      "BBmult": "2.0"
+    },
+    "tsv_settings": {
+      "tsvlength": "20",
+      "tsvemaperiod": "7"
+    },
+    "vidya_settings": {
+      "length": "20"
+    }
+  },
+  "vwap_system": {
+    "purpose": "Mean reversion trading based on Volume Weighted Average Price",
+    "components": {
+      "found": 8,
+      "details": [
+        {
+          "match": "smallcumulativePeriod = input(title = \"Small VWAP\", defval = 8",
+          "type": "vwap_calculation"
+        },
+        {
+          "match": "bigcumulativePeriod = input(title = \"Big VWAP\", defval = 10",
+          "type": "vwap_calculation"
+        },
+        {
+          "match": "meancumulativePeriod = input(title = \"Mean VWAP\", defval = 50",
+          "type": "vwap_calculation"
+        },
+        {
+          "match": "cumulativeTypicalPriceVolumeS = sum(typicalPriceVolumeS, smallcumulativePeriod)\ncumulativeVolumeS = sum(volume, smallcumulativePeriod)\nsmallvwapValue = cumulativeTypicalPriceVolumeS / cumulativeVolumeS\n\ntypicalPriceB = (high + low + close) / 3\ntypicalPriceVolumeB = typicalPriceB * volume\ncumulativeTypicalPriceVolumeB = sum(typicalPriceVolumeB, bigcumulativePeriod)\ncumulativeVolumeB = sum(volume, bigcumulativePeriod)\nbigvwapValue = cumulativeTypicalPriceVolumeB / cumulativeVolumeB \n\ntypicalPriceM = (high + low + close) / 3\ntypicalPriceVolumeM = typicalPriceM * volume\ncumulativeTypicalPriceVolumeM = sum(typicalPriceVolumeM, meancumulativePeriod)\ncumulativeVolumeM = sum(volume, meancumulativePeriod)\nmeanvwapValue = cumulativeTypicalPriceVolumeM / cumulativeVolumeM\n\nrsiValue = rsi(source, rsiPeriod)\nrsiEMA   = ema(rsiValue, rsiEmaPeriod)\nbuyMA = ((100 - percentBelowToBuy) / 100) * bigvwapValue[0]\n\ninTrade = strategy.position_size > 0\nnotInTrade = strategy.position_size <= 0\n\nif(crossunder(smallvwapValue, buyMA) and rsiEMA < rsiLevelforBuy and close < meanvwapValue and inDateRange and notInTrade)\n    strategy.entry(\"BUY-M\", strategy.long)\n\nif(close > meanvwapValue or not inDateRange)\n    strategy.close(\"BUY-M\")\n    \n// Trend Hunter Strategy Calculation\n\n// Slow Tenkan Sen Calculation\n\ntypicalPriceTS = (high + low + close) / 3\ntypicalPriceVolumeTS = typicalPriceTS * volume\ncumulativeTypicalPriceVolumeTS = sum(typicalPriceVolumeTS, slowtenkansenPeriod)\ncumulativeVolumeTS = sum(volume, slowtenkansenPeriod)\nslowtenkansenvwapValue = cumulativeTypicalPriceVolumeTS / cumulativeVolumeTS\n\n// Slow Kijun Sen Calculation\n\ntypicalPriceKS = (high + low + close) / 3\ntypicalPriceVolumeKS = typicalPriceKS * volume\ncumulativeTypicalPriceVolumeKS = sum(typicalPriceVolumeKS, slowkijunsenPeriod)\ncumulativeVolumeKS = sum(volume, slowkijunsenPeriod)\nslowkijunsenvwapValue = cumulativeTypicalPriceVolumeKS / cumulativeVolumeKS\n\n// Fast Tenkan Sen Calculation\n\ntypicalPriceTF = (high + low + close) / 3\ntypicalPriceVolumeTF = typicalPriceTF * volume\ncumulativeTypicalPriceVolumeTF = sum(typicalPriceVolumeTF, fasttenkansenPeriod)\ncumulativeVolumeTF = sum(volume, fasttenkansenPeriod)\nfasttenkansenvwapValue = cumulativeTypicalPriceVolumeTF / cumulativeVolumeTF\n\n// Fast Kijun Sen Calculation\n\ntypicalPriceKF = (high + low + close) / 3\ntypicalPriceVolumeKF = typicalPriceKS * volume\ncumulativeTypicalPriceVolumeKF = sum(typicalPriceVolumeKF, fastkijunsenPeriod)\ncumulativeVolumeKF = sum(volume, fastkijunsenPeriod)\nfastkijunsenvwapValue = cumulativeTypicalPriceVolumeKF / cumulativeVolumeKF\n\n// Slow LeadLine Calculation\n \nlowesttenkansen_s = lowest(slowtenkansenvwapValue, slowtenkansenPeriod)\nhighesttenkansen_s = highest(slowtenkansenvwapValue, slowtenkansenPeriod)\n\nlowestkijunsen_s = lowest(slowkijunsenvwapValue, slowkijunsenPeriod)\nhighestkijunsen_s = highest(slowkijunsenvwapValue, slowkijunsenPeriod)\n\nslowtenkansen = avg(lowesttenkansen_s, highesttenkansen_s)\nslowkijunsen = avg(lowestkijunsen_s, highestkijunsen_s)\nslowleadLine = avg(slowtenkansen, slowkijunsen)\n\n// Fast LeadLine Calculation \n \nlowesttenkansen_f = lowest(fasttenkansenvwapValue, fasttenkansenPeriod)\nhighesttenkansen_f = highest(fasttenkansenvwapValue, fasttenkansenPeriod)\n\nlowestkijunsen_f = lowest(fastkijunsenvwapValue, fastkijunsenPeriod)\nhighestkijunsen_f = highest(fastkijunsenvwapValue, fastkijunsenPeriod) \n\nfasttenkansen = avg(lowesttenkansen_f, highesttenkansen_f)\nfastkijunsen = avg(lowestkijunsen_f, highestkijunsen_f)\nfastleadLine = avg(fasttenkansen, fastkijunsen)\n\n// BBleadLine Calculation\n \nBBleadLine = avg(fastleadLine, slowleadLine)\n\n// Bollinger Band Calculation\n \nbasis = sma(BBleadLine, BBlength)\ndev = BBmult * stdev(BBleadLine, BBlength)\nupper = basis + dev  \nlower = basis - dev \n\n// TSV Calculation\n\ntsv = sum(close>close[1]?volume*(close-close[1]):close<close[1]?volume*(close-close[1]):0,tsvlength)\ntsvema = ema(tsv, tsvemaperiod)\n\n// Rules for Entry & Exit  \n\nif(fastleadLine > fastleadLine[1] and slowleadLine > slowleadLine[1] and tsv > 0 and tsv > tsvema and close > upper and close > vidya and inDateRange and notInTrade)\n    strategy.entry(\"BUY-T\", strategy.long)\n \nif((fastleadLine < fastleadLine[1] and slowleadLine < slowleadLine[1]) or not inDateRange)\n    strategy.close(\"BUY-T\")\n\n// Plots \n\nplot(meanvwapValue, title=\"MEAN VWAP\", linewidth=2, color=color.yellow)\n\n//plot(vidya, title=\"VIDYA\", linewidth=2, color=color.green)\n\n//colorsettingS = input(title=\"Solid Color Slow Leadline\", defval=false, type=input.bool)\n//plot(slowleadLine, title = \"Slow LeadLine\", color = colorsettingS ? color.aqua : slowleadLine > slowleadLine[1] ? color.green : color.red, linewidth=3)\n\n//colorsettingF = input(title=\"Solid Color Fast Leadline\", defval=false, type=input.bool)\n//plot(fastleadLine, title = \"Fast LeadLine\", color = colorsettingF ? color.orange : fastleadLine > fastleadLine[1] ? color.green : color.red, linewidth=3)\n\n//p1 = plot(upper, \"Upper BB\", color=#2962FF)\n//p2 = plot(lower, \"Lower BB\", color=#2962FF)\n//fill(p1, p2, title = \"Background\", color=color.blue)\n\n//plot(smallvwapValue, color=#13C425, linewidth=2)\n//plot(bigvwapValue, color=#CA1435, linewidth=2)\n\n",
+          "type": "vwap_calculation"
+        },
+        {
+          "match": "cumulativeVolumeS = sum(volume, smallcumulativePeriod)\nsmallvwapValue = cumulativeTypicalPriceVolumeS / cumulativeVolumeS\n\ntypicalPriceB = (high + low + close) / 3\ntypicalPriceVolumeB = typicalPriceB * volume\ncumulativeTypicalPriceVolumeB = sum(typicalPriceVolumeB, bigcumulativePeriod)\ncumulativeVolumeB = sum(volume, bigcumulativePeriod)\nbigvwapValue = cumulativeTypicalPriceVolumeB / cumulativeVolumeB \n\ntypicalPriceM = (high + low + close) / 3\ntypicalPriceVolumeM = typicalPriceM * volume\ncumulativeTypicalPriceVolumeM = sum(typicalPriceVolumeM, meancumulativePeriod)\ncumulativeVolumeM = sum(volume, meancumulativePeriod)\nmeanvwapValue = cumulativeTypicalPriceVolumeM / cumulativeVolumeM\n\nrsiValue = rsi(source, rsiPeriod)\nrsiEMA   = ema(rsiValue, rsiEmaPeriod)\nbuyMA = ((100 - percentBelowToBuy) / 100) * bigvwapValue[0]\n\ninTrade = strategy.position_size > 0\nnotInTrade = strategy.position_size <= 0\n\nif(crossunder(smallvwapValue, buyMA) and rsiEMA < rsiLevelforBuy and close < meanvwapValue and inDateRange and notInTrade)\n    strategy.entry(\"BUY-M\", strategy.long)\n\nif(close > meanvwapValue or not inDateRange)\n    strategy.close(\"BUY-M\")\n    \n// Trend Hunter Strategy Calculation\n\n// Slow Tenkan Sen Calculation\n\ntypicalPriceTS = (high + low + close) / 3\ntypicalPriceVolumeTS = typicalPriceTS * volume\ncumulativeTypicalPriceVolumeTS = sum(typicalPriceVolumeTS, slowtenkansenPeriod)\ncumulativeVolumeTS = sum(volume, slowtenkansenPeriod)\nslowtenkansenvwapValue = cumulativeTypicalPriceVolumeTS / cumulativeVolumeTS\n\n// Slow Kijun Sen Calculation\n\ntypicalPriceKS = (high + low + close) / 3\ntypicalPriceVolumeKS = typicalPriceKS * volume\ncumulativeTypicalPriceVolumeKS = sum(typicalPriceVolumeKS, slowkijunsenPeriod)\ncumulativeVolumeKS = sum(volume, slowkijunsenPeriod)\nslowkijunsenvwapValue = cumulativeTypicalPriceVolumeKS / cumulativeVolumeKS\n\n// Fast Tenkan Sen Calculation\n\ntypicalPriceTF = (high + low + close) / 3\ntypicalPriceVolumeTF = typicalPriceTF * volume\ncumulativeTypicalPriceVolumeTF = sum(typicalPriceVolumeTF, fasttenkansenPeriod)\ncumulativeVolumeTF = sum(volume, fasttenkansenPeriod)\nfasttenkansenvwapValue = cumulativeTypicalPriceVolumeTF / cumulativeVolumeTF\n\n// Fast Kijun Sen Calculation\n\ntypicalPriceKF = (high + low + close) / 3\ntypicalPriceVolumeKF = typicalPriceKS * volume\ncumulativeTypicalPriceVolumeKF = sum(typicalPriceVolumeKF, fastkijunsenPeriod)\ncumulativeVolumeKF = sum(volume, fastkijunsenPeriod)\nfastkijunsenvwapValue = cumulativeTypicalPriceVolumeKF / cumulativeVolumeKF\n\n// Slow LeadLine Calculation\n \nlowesttenkansen_s = lowest(slowtenkansenvwapValue, slowtenkansenPeriod)\nhighesttenkansen_s = highest(slowtenkansenvwapValue, slowtenkansenPeriod)\n\nlowestkijunsen_s = lowest(slowkijunsenvwapValue, slowkijunsenPeriod)\nhighestkijunsen_s = highest(slowkijunsenvwapValue, slowkijunsenPeriod)\n\nslowtenkansen = avg(lowesttenkansen_s, highesttenkansen_s)\nslowkijunsen = avg(lowestkijunsen_s, highestkijunsen_s)\nslowleadLine = avg(slowtenkansen, slowkijunsen)\n\n// Fast LeadLine Calculation \n \nlowesttenkansen_f = lowest(fasttenkansenvwapValue, fasttenkansenPeriod)\nhighesttenkansen_f = highest(fasttenkansenvwapValue, fasttenkansenPeriod)\n\nlowestkijunsen_f = lowest(fastkijunsenvwapValue, fastkijunsenPeriod)\nhighestkijunsen_f = highest(fastkijunsenvwapValue, fastkijunsenPeriod) \n\nfasttenkansen = avg(lowesttenkansen_f, highesttenkansen_f)\nfastkijunsen = avg(lowestkijunsen_f, highestkijunsen_f)\nfastleadLine = avg(fasttenkansen, fastkijunsen)\n\n// BBleadLine Calculation\n \nBBleadLine = avg(fastleadLine, slowleadLine)\n\n// Bollinger Band Calculation\n \nbasis = sma(BBleadLine, BBlength)\ndev = BBmult * stdev(BBleadLine, BBlength)\nupper = basis + dev  \nlower = basis - dev \n\n// TSV Calculation\n\ntsv = sum(close>close[1]?volume*(close-close[1]):close<close[1]?volume*(close-close[1]):0,tsvlength)\ntsvema = ema(tsv, tsvemaperiod)\n\n// Rules for Entry & Exit  \n\nif(fastleadLine > fastleadLine[1] and slowleadLine > slowleadLine[1] and tsv > 0 and tsv > tsvema and close > upper and close > vidya and inDateRange and notInTrade)\n    strategy.entry(\"BUY-T\", strategy.long)\n \nif((fastleadLine < fastleadLine[1] and slowleadLine < slowleadLine[1]) or not inDateRange)\n    strategy.close(\"BUY-T\")\n\n// Plots \n\nplot(meanvwapValue, title=\"MEAN VWAP\", linewidth=2, color=color.yellow)\n\n//plot(vidya, title=\"VIDYA\", linewidth=2, color=color.green)\n\n//colorsettingS = input(title=\"Solid Color Slow Leadline\", defval=false, type=input.bool)\n//plot(slowleadLine, title = \"Slow LeadLine\", color = colorsettingS ? color.aqua : slowleadLine > slowleadLine[1] ? color.green : color.red, linewidth=3)\n\n//colorsettingF = input(title=\"Solid Color Fast Leadline\", defval=false, type=input.bool)\n//plot(fastleadLine, title = \"Fast LeadLine\", color = colorsettingF ? color.orange : fastleadLine > fastleadLine[1] ? color.green : color.red, linewidth=3)\n\n//p1 = plot(upper, \"Upper BB\", color=#2962FF)\n//p2 = plot(lower, \"Lower BB\", color=#2962FF)\n//fill(p1, p2, title = \"Background\", color=color.blue)\n\n//plot(smallvwapValue, color=#13C425, linewidth=2)\n//plot(bigvwapValue, color=#CA1435, linewidth=2)\n\n",
+          "type": "vwap_calculation"
+        }
+      ]
+    },
+    "logic": "Buy when price is below VWAP by certain percentage",
+    "periods": {
+      "small": 8,
+      "big": 10,
+      "mean": 50
+    }
+  },
+  "momentum_system": {
+    "purpose": "Trend hunting using multiple momentum indicators",
+    "indicators": {
+      "rsi": {
+        "found": 1,
+        "purpose": "Momentum oscillator",
+        "sample": "rsi(source, rsiPeriod)"
+      },
+      "tsv": {
+        "found": 4,
+        "purpose": "Volume-based momentum",
+        "sample": "tsvlength  = input(20, minval=1, title=\"TSV Length\", group = \"Trend Hunter Strategy Inputs\")"
+      },
+      "vidya": {
+        "found": 1,
+        "purpose": "Adaptive moving average",
+        "sample": "cmo = abs(getCMO(src, length))"
+      },
+      "ichimoku_style": {
+        "found": 25,
+        "purpose": "Trend identification lines",
+        "components": [
+          "tenkansen",
+          "kijunsen",
+          "tenkansen"
+        ]
+      }
+    },
+    "logic": "Combine RSI, TSV, Vidya, and Ichimoku-style indicators"
+  },
+  "entry_exit_logic": {
+    "entry_conditions": [],
+    "exit_conditions": [],
+    "dual_system_combination": "VWAP mean reversion + momentum confirmation"
+  },
+  "conversion_roadmap": [
+    {
+      "step": 1,
+      "component": "VWAP System",
+      "task": "Implement volume-weighted average price calculations",
+      "complexity": "Medium",
+      "python_libs": "pandas, numpy",
+      "key_challenge": "Cumulative volume calculations across different periods"
+    },
+    {
+      "step": 2,
+      "component": "RSI + EMA",
+      "task": "Implement RSI with EMA smoothing",
+      "complexity": "Easy",
+      "python_libs": "ta-lib or custom implementation",
+      "key_challenge": "Parameter mapping and validation"
+    },
+    {
+      "step": 3,
+      "component": "TSV (Time Series Volume)",
+      "task": "Implement volume-based momentum indicator",
+      "complexity": "Hard",
+      "python_libs": "Custom implementation required",
+      "key_challenge": "Understanding TSV calculation method"
+    },
+    {
+      "step": 4,
+      "component": "Vidya (Variable Index Dynamic Average)",
+      "task": "Implement adaptive moving average with CMO",
+      "complexity": "Hard",
+      "python_libs": "Custom implementation",
+      "key_challenge": "CMO calculation and alpha adjustment"
+    },
+    {
+      "step": 5,
+      "component": "Ichimoku-style Components",
+      "task": "Implement Tenkansen, Kijunsen, Lead Lines",
+      "complexity": "Medium",
+      "python_libs": "Custom implementation",
+      "key_challenge": "Fast and slow period calculations"
+    },
+    {
+      "step": 6,
+      "component": "Signal Logic",
+      "task": "Combine all indicators into entry/exit signals",
+      "complexity": "Hard",
+      "python_libs": "pandas",
+      "key_challenge": "Replicating exact Pine Script logic flow"
+    },
+    {
+      "step": 7,
+      "component": "Parameter Interface",
+      "task": "Create configurable parameters matching Pine Script",
+      "complexity": "Medium",
+      "python_libs": "pydantic for validation",
+      "key_challenge": "Parameter validation and ranges"
+    }
+  ]
+}

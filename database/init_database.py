@@ -39,6 +39,9 @@ class DatabaseInitializer:
             # Validate schema
             self._validate_schema()
             
+            # Apply minimal migrations for legacy DBs (idempotent)
+            self._migrate_legacy_tables()
+            
             # Insert sample data for testing
             self._insert_sample_data()
             
@@ -121,11 +124,80 @@ class DatabaseInitializer:
                 
         print(f"   ✓ All critical indexes created")
         
+    def _column_exists(self, table: str, column: str) -> bool:
+        """Check if a column exists in a table (SQLite)."""
+        cur = self.connection.cursor()
+        cur.execute(f"PRAGMA table_info({table})")
+        cols = [row[1] for row in cur.fetchall()]
+        return column in cols
+
+    def _add_column_if_missing(self, table: str, column: str, column_def: str):
+        """ALTER TABLE to add a column if it doesn't exist."""
+        if not self._column_exists(table, column):
+            print(f"   ↪ Adding missing column: {table}.{column}")
+            self.connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {column_def}")
+            self.connection.commit()
+
+    def _migrate_legacy_tables(self):
+        """Ensure older databases are upgraded with required columns used by init."""
+        print("🧭 Applying legacy migrations (if needed)...")
+        # Detect legacy 'strategies' schema (pre-ORM) and rebuild table to current schema
+        try:
+            cur = self.connection.cursor()
+            cur.execute("PRAGMA table_info(strategies)")
+            cols = [row[1] for row in cur.fetchall()]
+            is_legacy = ('author' in cols) and ('category' not in cols)
+            if is_legacy:
+                print("   ↪ Detected legacy 'strategies' schema. Backing up and creating fresh table...")
+                self.connection.executescript(
+                    """
+                    BEGIN TRANSACTION;
+                    ALTER TABLE strategies RENAME TO strategies_backup;
+                    CREATE TABLE IF NOT EXISTS strategies (
+                        id INTEGER PRIMARY KEY,
+                        name VARCHAR(255) NOT NULL,
+                        description TEXT,
+                        category VARCHAR(50),
+                        pine_script_file_id INTEGER,
+                        python_code TEXT,
+                        strategy_type VARCHAR(30) DEFAULT 'trend_following',
+                        status VARCHAR(20) DEFAULT 'draft',
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                    );
+                    COMMIT;
+                    """
+                )
+                print("   ✓ Backed up legacy table as 'strategies_backup' and created fresh 'strategies'")
+        except Exception as e:
+            print(f"   ⚠️  strategies legacy rebuild note: {e}")
+
+        # crypto_data_sources.status is used by sample inserts and API filters
+        try:
+            self._add_column_if_missing('crypto_data_sources', 'status', "VARCHAR(20) DEFAULT 'active'")
+        except Exception as e:
+            print(f"   ⚠️  crypto_data_sources.status migration note: {e}")
+
+        # Timestamps on crypto_data_sources (best-effort; safe if already present)
+        try:
+            self._add_column_if_missing('crypto_data_sources', 'last_updated', "DATETIME")
+        except Exception as e:
+            print(f"   ⚠️  crypto_data_sources.last_updated migration note: {e}")
+        try:
+            self._add_column_if_missing('crypto_data_sources', 'created_at', "DATETIME")
+        except Exception as e:
+            print(f"   ⚠️  crypto_data_sources.created_at migration note: {e}")
+
     def _insert_sample_data(self):
         """Insert sample data for testing."""
         print("📊 Inserting sample data...")
         
         cursor = self.connection.cursor()
+        
+        # Helper: get existing columns for a table
+        def table_columns(table: str):
+            cursor.execute(f"PRAGMA table_info({table})")
+            return [row[1] for row in cursor.fetchall()]
         
         # Sample Pine Script file
         sample_pine_content = '''
@@ -161,13 +233,28 @@ if short_condition
         
         pine_file_id = cursor.lastrowid
         
-        # Insert sample strategy
-        cursor.execute("""
-            INSERT INTO strategies 
-            (name, description, category, pine_script_file_id, strategy_type, status)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, ("Sample RSI Strategy", "A simple RSI-based trading strategy for crypto", 
-              "RSI", pine_file_id, "mean_reversion", "draft"))
+        # Insert sample strategy (handle legacy without 'category')
+        strategy_cols = table_columns('strategies')
+        if 'category' in strategy_cols:
+            cursor.execute(
+                """
+                INSERT INTO strategies 
+                (name, description, category, pine_script_file_id, strategy_type, status)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                ("Sample RSI Strategy", "A simple RSI-based trading strategy for crypto",
+                 "RSI", pine_file_id, "mean_reversion", "draft")
+            )
+        else:
+            cursor.execute(
+                """
+                INSERT INTO strategies 
+                (name, description, pine_script_file_id, strategy_type, status)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                ("Sample RSI Strategy", "A simple RSI-based trading strategy for crypto",
+                 pine_file_id, "mean_reversion", "draft")
+            )
         
         strategy_id = cursor.lastrowid
         
@@ -187,12 +274,36 @@ if short_condition
             """, (strategy_id, param_name, param_type, constraints, 
                   default_val, optuna_type, pine_name, pine_type))
         
-        # Insert sample data source
-        cursor.execute("""
-            INSERT INTO crypto_data_sources 
-            (symbol, exchange, timeframe, pandas_freq, ccxt_timeframe, status)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """, ("BTCUSDT", "BINANCE", "1h", "H", "1h", "active"))
+        # Insert sample data source (handle legacy without 'status')
+        cds_cols = table_columns('crypto_data_sources')
+        if 'status' in cds_cols and 'pandas_freq' in cds_cols and 'ccxt_timeframe' in cds_cols:
+            cursor.execute(
+                """
+                INSERT INTO crypto_data_sources 
+                (symbol, exchange, timeframe, pandas_freq, ccxt_timeframe, status)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                ("BTCUSDT", "BINANCE", "1h", "H", "1h", "active")
+            )
+        elif 'pandas_freq' in cds_cols and 'ccxt_timeframe' in cds_cols:
+            cursor.execute(
+                """
+                INSERT INTO crypto_data_sources 
+                (symbol, exchange, timeframe, pandas_freq, ccxt_timeframe)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                ("BTCUSDT", "BINANCE", "1h", "H", "1h")
+            )
+        else:
+            # Minimal legacy form
+            cursor.execute(
+                """
+                INSERT INTO crypto_data_sources 
+                (symbol, exchange, timeframe)
+                VALUES (?, ?, ?)
+                """,
+                ("BTCUSDT", "BINANCE", "1h")
+            )
         
         # Sample OHLC data (1 week of hourly data)
         base_timestamp = int(datetime(2024, 1, 1).timestamp())

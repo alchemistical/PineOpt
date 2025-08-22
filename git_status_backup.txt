@@ -1,0 +1,128 @@
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	modified:   .DS_Store
+	modified:   .claude/settings.local.json
+	new file:   .env.production
+	new file:   .github/workflows/ci-cd.yml
+	new file:   Dockerfile.backend
+	new file:   Dockerfile.frontend
+	new file:   UXPLAN.md
+	new file:   api/__pycache__/backtest_routes.cpython-313.pyc
+	new file:   api/__pycache__/market_data_service.cpython-313.pyc
+	new file:   api/__pycache__/market_routes.cpython-313.pyc
+	new file:   api/__pycache__/server.cpython-313.pyc
+	modified:   api/__pycache__/strategy_routes.cpython-313.pyc
+	new file:   api/backtest_routes.py
+	new file:   api/market_data_service.py
+	new file:   api/market_routes.py
+	modified:   api/server.py
+	modified:   api/strategy_routes.py
+	modified:   database/pineopt.db
+	new file:   docker-compose.yml
+	new file:   documentation/Epic6_Architecture_Design.md
+	new file:   documentation/Epic6_Sprint_Plans.md
+	new file:   documentation/PRD_Epic6_Advanced_Pine_Conversion.md
+	new file:   examples/.DS_Store
+	new file:   market_data.db
+	new file:   nginx.conf
+	new file:   outputs/.DS_Store
+	new file:   outputs/datasets/binance/BINANCE_BTCUSDT_1d_30.parquet
+	modified:   outputs/datasets/binance/BINANCE_BTCUSDT_1h_5.parquet
+	new file:   outputs/datasets/binance/BINANCE_BTCUSDT_1h_5000.parquet
+	new file:   outputs/datasets/binance/BINANCE_BTCUSDT_1h_720.parquet
+	new file:   outputs/datasets/binance/BINANCE_BTCUSDT_1w_5.parquet
+	new file:   outputs/datasets/binance/BINANCE_BTCUSDT_4h_180.parquet
+	new file:   pine2py/.DS_Store
+	new file:   requirements_enhanced.txt
+	new file:   research/.DS_Store
+	new file:   research/analysis/__init__.py
+	new file:   research/analysis/__pycache__/__init__.cpython-313.pyc
+	new file:   research/analysis/__pycache__/strategy_profiler.cpython-313.pyc
+	new file:   research/analysis/ai_strategy_analyzer.py
+	new file:   research/analysis/strategy_profiler.py
+	modified:   research/backtest/__init__.py
+	new file:   research/backtest/__pycache__/__init__.cpython-313.pyc
+	new file:   research/backtest/__pycache__/backtest_engine.cpython-313.pyc
+	new file:   research/backtest/__pycache__/portfolio_engine.cpython-313.pyc
+	new file:   research/backtest/__pycache__/strategy_executor.cpython-313.pyc
+	new file:   research/backtest/backtest_engine.py
+	new file:   research/backtest/portfolio_engine.py
+	new file:   research/backtest/strategy_executor.py
+	modified:   research/data/providers/__pycache__/binance_futures_provider.cpython-313.pyc
+	modified:   research/data/providers/binance_futures_provider.py
+	new file:   scripts/run-tests.sh
+	new file:   scripts/start-production.sh
+	new file:   shared/.DS_Store
+	new file:   src/.DS_Store
+	modified:   src/App.tsx
+	new file:   src/components/AssetChartView.tsx
+	new file:   src/components/AssetScreener.tsx
+	new file:   src/components/BacktestResults.tsx
+	new file:   src/components/CryptoLabDashboard.tsx
+	new file:   src/components/CryptoLabLayout.tsx
+	modified:   src/components/DataImportView.tsx
+	new file:   src/components/ExecutionMonitor.tsx
+	modified:   src/components/PineStrategyUpload.tsx
+	new file:   src/components/StrategyDashboard.tsx
+	modified:   src/components/StrategyLibrary.tsx
+	modified:   src/components/StrategyUpload.tsx
+	modified:   vite.config.ts
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .claude/settings.local.json
+	modified:   .gitignore
+	modified:   api/__pycache__/backtest_routes.cpython-313.pyc
+	modified:   api/__pycache__/server.cpython-313.pyc
+	modified:   api/server.py
+	modified:   api/strategies.db
+	modified:   database/__pycache__/init_database.cpython-313.pyc
+	modified:   database/init_database.py
+	modified:   database/pineopt.db
+	modified:   documentation/Epic6_Sprint_Plans.md
+	modified:   examples/.DS_Store
+	modified:   market_data.db
+	modified:   src/App.tsx
+	modified:   src/components/CryptoLabDashboard.tsx
+	modified:   src/components/PineStrategyUpload.tsx
+	modified:   src/components/StrategyDashboard.tsx
+	modified:   src/components/StrategyLibrary.tsx
+	modified:   src/components/StrategyUpload.tsx
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.bmad-core/
+	API_TEST_REPORT_QA.md
+	REPOSITORY_CLEANUP_ACTION_PLAN.md
+	api/ai_analysis_routes.py
+	api/ai_conversion_routes.py
+	api/intelligent_conversion_routes.py
+	api/parameter_routes.py
+	api/real_backtest_routes.py
+	documentation/Fullstack_Architecture_PineOpt.md
+	documentation/PRD_Comprehensive_Strategy_Analysis_Engine.md
+	examples/pine_scripts/HYE.pine
+	git_status_backup.txt
+	research/ai_analysis/
+	research/analysis/STRATEGY_REPORTING_FRAMEWORK.md
+	research/analysis/comprehensive_strategy_analyzer.py
+	research/analysis/pynescript_converter.py
+	research/analysis/validation_pipeline.py
+	research/backtest/jesse_adapter.py
+	research/intelligent_converter/
+	src/components/AIStrategyDashboard.tsx
+	src/components/BacktestInterface.tsx
+	src/components/BacktestPage.tsx
+	src/components/EnhancedBacktestInterface.tsx
+	src/components/ParameterInterface.tsx
+	src/config/
+	test_api_endpoints.py
+	test_frontend_api_connections.py
+	test_hye_backtest.py
+	test_hye_simple.py
+

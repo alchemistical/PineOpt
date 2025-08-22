@@ -93,7 +93,7 @@ const StrategyDashboard: React.FC<StrategyDashboardProps> = ({
       setLoading(true);
       
       // Load strategies
-      const strategiesResponse = await fetch('http://localhost:5001/api/strategies?limit=50');
+      const strategiesResponse = await fetch('http://localhost:5007/api/strategies?limit=50');
       const strategiesData = await strategiesResponse.json();
       
       if (strategiesData.success) {
@@ -165,7 +165,7 @@ const StrategyDashboard: React.FC<StrategyDashboardProps> = ({
       case 'delete':
         if (confirm('Are you sure you want to delete this strategy?')) {
           try {
-            await fetch(`http://localhost:5001/api/strategies/${strategyId}`, { method: 'DELETE' });
+            await fetch(`http://localhost:5007/api/strategies/${strategyId}`, { method: 'DELETE' });
             setStrategies(prev => prev.filter(s => s.id !== strategyId));
           } catch (error) {
             console.error('Failed to delete strategy:', error);
@@ -186,7 +186,7 @@ const StrategyDashboard: React.FC<StrategyDashboardProps> = ({
       setSelectedStrategy(strategy);
       setShowProfileModal(true);
 
-      const response = await fetch(`http://localhost:5001/api/strategies/${strategy.id}/profile`, {
+      const response = await fetch(`http://localhost:5007/api/strategies/${strategy.id}/profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

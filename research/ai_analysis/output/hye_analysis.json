@@ -1,0 +1,1395 @@
+{
+  "name": "Source",
+  "description": "",
+  "strategy_type": "hybrid",
+  "indicators": {
+    "rsi": {
+      "name": "RSI",
+      "type": "momentum",
+      "parameters": {
+        "source": "source",
+        "length": "rsiPeriod"
+      },
+      "inputs": [
+        "close"
+      ],
+      "outputs": [
+        "rsi_value"
+      ],
+      "purpose": "Momentum oscillator for overbought/oversold conditions"
+    },
+    "sma": {
+      "name": "SMA",
+      "type": "trend",
+      "parameters": {
+        "source": "BBleadLine",
+        "length": "BBlength"
+      },
+      "inputs": [
+        "source"
+      ],
+      "outputs": [
+        "ma_line"
+      ],
+      "purpose": "Simple moving average for trend identification"
+    },
+    "ema": {
+      "name": "EMA",
+      "type": "trend",
+      "parameters": {
+        "source": "rsiValue",
+        "length": "rsiEmaPeriod"
+      },
+      "inputs": [
+        "source"
+      ],
+      "outputs": [
+        "ma_line"
+      ],
+      "purpose": "Exponential moving average for trend identification"
+    },
+    "ema_1": {
+      "name": "EMA",
+      "type": "trend",
+      "parameters": {
+        "source": "tsv",
+        "length": "tsvemaperiod"
+      },
+      "inputs": [
+        "source"
+      ],
+      "outputs": [
+        "ma_line"
+      ],
+      "purpose": "Exponential moving average for trend identification"
+    },
+    "tsv": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_1": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_2": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_3": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_4": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_5": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_6": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_7": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_8": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_9": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_10": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "tsv_11": {
+      "name": "TSV",
+      "type": "volume",
+      "parameters": {},
+      "inputs": [
+        "close",
+        "volume"
+      ],
+      "outputs": [
+        "tsv_value"
+      ],
+      "purpose": "Time Series Volume for trend confirmation"
+    },
+    "source": {
+      "name": "source",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "source"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "smallcumulativePeriod": {
+      "name": "smallcumulativePeriod",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "smallcumulativePeriod"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "bigcumulativePeriod": {
+      "name": "bigcumulativePeriod",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "bigcumulativePeriod"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "meancumulativePeriod": {
+      "name": "meancumulativePeriod",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "meancumulativePeriod"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "percentBelowToBuy": {
+      "name": "percentBelowToBuy",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "percentBelowToBuy"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "rsiPeriod": {
+      "name": "rsiPeriod",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "rsiPeriod"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "rsiEmaPeriod": {
+      "name": "rsiEmaPeriod",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "rsiEmaPeriod"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "rsiLevelforBuy": {
+      "name": "rsiLevelforBuy",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "rsiLevelforBuy"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "slowtenkansenPeriod": {
+      "name": "slowtenkansenPeriod",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "slowtenkansenPeriod"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "slowkijunsenPeriod": {
+      "name": "slowkijunsenPeriod",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "slowkijunsenPeriod"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "fasttenkansenPeriod": {
+      "name": "fasttenkansenPeriod",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "fasttenkansenPeriod"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "fastkijunsenPeriod": {
+      "name": "fastkijunsenPeriod",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "fastkijunsenPeriod"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "BBlength": {
+      "name": "BBlength",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "BBlength"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "BBmult": {
+      "name": "BBmult",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "BBmult"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "tsvlength": {
+      "name": "tsvlength",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "tsvlength"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "tsvemaperiod": {
+      "name": "tsvemaperiod",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "tsvemaperiod"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "length": {
+      "name": "length",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "length"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "src": {
+      "name": "src",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "src"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "mom": {
+      "name": "mom",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "mom"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "upSum": {
+      "name": "upSum",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "upSum"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "downSum": {
+      "name": "downSum",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "downSum"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cmo": {
+      "name": "cmo",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cmo"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "startDate": {
+      "name": "startDate",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "startDate"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "startMonth": {
+      "name": "startMonth",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "startMonth"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "startYear": {
+      "name": "startYear",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "startYear"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "endDate": {
+      "name": "endDate",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "endDate"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "endMonth": {
+      "name": "endMonth",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "endMonth"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "endYear": {
+      "name": "endYear",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "endYear"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeTypicalPriceVolumeS": {
+      "name": "cumulativeTypicalPriceVolumeS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeTypicalPriceVolumeS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeVolumeS": {
+      "name": "cumulativeVolumeS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeVolumeS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeTypicalPriceVolumeB": {
+      "name": "cumulativeTypicalPriceVolumeB",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeTypicalPriceVolumeB"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeVolumeB": {
+      "name": "cumulativeVolumeB",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeVolumeB"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeTypicalPriceVolumeM": {
+      "name": "cumulativeTypicalPriceVolumeM",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeTypicalPriceVolumeM"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeVolumeM": {
+      "name": "cumulativeVolumeM",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeVolumeM"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "rsiValue": {
+      "name": "rsiValue",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "rsiValue"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "rsiEMA": {
+      "name": "rsiEMA",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "rsiEMA"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeTypicalPriceVolumeTS": {
+      "name": "cumulativeTypicalPriceVolumeTS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeTypicalPriceVolumeTS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeVolumeTS": {
+      "name": "cumulativeVolumeTS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeVolumeTS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeTypicalPriceVolumeKS": {
+      "name": "cumulativeTypicalPriceVolumeKS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeTypicalPriceVolumeKS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeVolumeKS": {
+      "name": "cumulativeVolumeKS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeVolumeKS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeTypicalPriceVolumeTF": {
+      "name": "cumulativeTypicalPriceVolumeTF",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeTypicalPriceVolumeTF"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeVolumeTF": {
+      "name": "cumulativeVolumeTF",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeVolumeTF"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeTypicalPriceVolumeKF": {
+      "name": "cumulativeTypicalPriceVolumeKF",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeTypicalPriceVolumeKF"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "cumulativeVolumeKF": {
+      "name": "cumulativeVolumeKF",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "cumulativeVolumeKF"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "lowesttenkansen_s": {
+      "name": "lowesttenkansen_s",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "lowesttenkansen_s"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "highesttenkansen_s": {
+      "name": "highesttenkansen_s",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "highesttenkansen_s"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "lowestkijunsen_s": {
+      "name": "lowestkijunsen_s",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "lowestkijunsen_s"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "highestkijunsen_s": {
+      "name": "highestkijunsen_s",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "highestkijunsen_s"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "slowtenkansen": {
+      "name": "slowtenkansen",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "slowtenkansen"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "slowkijunsen": {
+      "name": "slowkijunsen",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "slowkijunsen"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "slowleadLine": {
+      "name": "slowleadLine",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "slowleadLine"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "lowesttenkansen_f": {
+      "name": "lowesttenkansen_f",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "lowesttenkansen_f"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "highesttenkansen_f": {
+      "name": "highesttenkansen_f",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "highesttenkansen_f"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "lowestkijunsen_f": {
+      "name": "lowestkijunsen_f",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "lowestkijunsen_f"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "highestkijunsen_f": {
+      "name": "highestkijunsen_f",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "highestkijunsen_f"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "fasttenkansen": {
+      "name": "fasttenkansen",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "fasttenkansen"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "fastkijunsen": {
+      "name": "fastkijunsen",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "fastkijunsen"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "fastleadLine": {
+      "name": "fastleadLine",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "fastleadLine"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "BBleadLine": {
+      "name": "BBleadLine",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "BBleadLine"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "basis": {
+      "name": "basis",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "basis"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "tsvema": {
+      "name": "tsvema",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "tsvema"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceS": {
+      "name": "typicalPriceS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceVolumeS": {
+      "name": "typicalPriceVolumeS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceVolumeS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceB": {
+      "name": "typicalPriceB",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceB"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceVolumeB": {
+      "name": "typicalPriceVolumeB",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceVolumeB"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceM": {
+      "name": "typicalPriceM",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceM"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceVolumeM": {
+      "name": "typicalPriceVolumeM",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceVolumeM"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "buyMA": {
+      "name": "buyMA",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "buyMA"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceTS": {
+      "name": "typicalPriceTS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceTS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceVolumeTS": {
+      "name": "typicalPriceVolumeTS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceVolumeTS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceKS": {
+      "name": "typicalPriceKS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceKS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceVolumeKS": {
+      "name": "typicalPriceVolumeKS",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceVolumeKS"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceTF": {
+      "name": "typicalPriceTF",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceTF"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceVolumeTF": {
+      "name": "typicalPriceVolumeTF",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceVolumeTF"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceKF": {
+      "name": "typicalPriceKF",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceKF"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "typicalPriceVolumeKF": {
+      "name": "typicalPriceVolumeKF",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "typicalPriceVolumeKF"
+      ],
+      "purpose": "Custom calculation or indicator"
+    },
+    "title": {
+      "name": "title",
+      "type": "custom",
+      "parameters": {},
+      "inputs": [
+        "unknown"
+      ],
+      "outputs": [
+        "title"
+      ],
+      "purpose": "Custom calculation or indicator"
+    }
+  },
+  "parameters": {
+    "source": {
+      "name": "source",
+      "default_value": "title = \"Source",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    },
+    "smallcumulativePeriod": {
+      "name": "smallcumulativePeriod",
+      "default_value": "title = \"Small VWAP",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "bigcumulativePeriod": {
+      "name": "bigcumulativePeriod",
+      "default_value": "title = \"Big VWAP",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "meancumulativePeriod": {
+      "name": "meancumulativePeriod",
+      "default_value": "title = \"Mean VWAP",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "percentBelowToBuy": {
+      "name": "percentBelowToBuy",
+      "default_value": "title = \"Percent below to buy %",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    },
+    "rsiPeriod": {
+      "name": "rsiPeriod",
+      "default_value": "title = \"Rsi Period",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "rsiEmaPeriod": {
+      "name": "rsiEmaPeriod",
+      "default_value": "title = \"Rsi Ema Period",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "rsiLevelforBuy": {
+      "name": "rsiLevelforBuy",
+      "default_value": "title = \"Maximum Rsi Level for Buy",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    },
+    "slowtenkansenPeriod": {
+      "name": "slowtenkansenPeriod",
+      "default_value": "9",
+      "data_type": "int",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "slowkijunsenPeriod": {
+      "name": "slowkijunsenPeriod",
+      "default_value": "13",
+      "data_type": "int",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "fasttenkansenPeriod": {
+      "name": "fasttenkansenPeriod",
+      "default_value": "3",
+      "data_type": "int",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "fastkijunsenPeriod": {
+      "name": "fastkijunsenPeriod",
+      "default_value": "7",
+      "data_type": "int",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "BBlength": {
+      "name": "BBlength",
+      "default_value": "20",
+      "data_type": "int",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "BBmult": {
+      "name": "BBmult",
+      "default_value": "2.0",
+      "data_type": "float",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    },
+    "tsvlength": {
+      "name": "tsvlength",
+      "default_value": "20",
+      "data_type": "int",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "tsvemaperiod": {
+      "name": "tsvemaperiod",
+      "default_value": "7",
+      "data_type": "int",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "length": {
+      "name": "length",
+      "default_value": "title=\"Vidya Length",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "indicator"
+    },
+    "src": {
+      "name": "src",
+      "default_value": "title=\"Vidya Source",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    },
+    "startDate": {
+      "name": "startDate",
+      "default_value": "title=\"Start Date",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    },
+    "startMonth": {
+      "name": "startMonth",
+      "default_value": "title=\"Start Month",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    },
+    "startYear": {
+      "name": "startYear",
+      "default_value": "title=\"Start Year",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    },
+    "endDate": {
+      "name": "endDate",
+      "default_value": "title=\"End Date",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    },
+    "endMonth": {
+      "name": "endMonth",
+      "default_value": "title=\"End Month",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    },
+    "endYear": {
+      "name": "endYear",
+      "default_value": "title=\"End Year",
+      "data_type": "string",
+      "min_value": null,
+      "max_value": null,
+      "description": null,
+      "category": "general"
+    }
+  },
+  "logic_flow": {
+    "entry_conditions": [],
+    "exit_conditions": [],
+    "signal_combinations": {},
+    "logic_type": "trend_following",
+    "complexity_score": 10
+  },
+  "data_requirements": [
+    "close",
+    "source",
+    "unknown",
+    "volume"
+  ],
+  "timeframe_compatibility": [
+    "5m",
+    "15m",
+    "1h",
+    "4h"
+  ],
+  "complexity_assessment": {
+    "indicator_count": 93,
+    "logic_complexity": 10,
+    "lines_of_code": 202,
+    "custom_functions": 1,
+    "overall_score": 10
+  },
+  "conversion_challenges": [
+    "Multiple custom indicators (77)"
+  ],
+  "analysis_timestamp": "2025-08-22T16:19:18.712316"
+}
