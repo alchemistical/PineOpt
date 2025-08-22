@@ -9,10 +9,11 @@ import {
   FileText,
   Activity,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Library
 } from 'lucide-react';
 
-export type DashboardView = 'overview' | 'data' | 'futures' | 'converter' | 'strategies' | 'analytics' | 'settings';
+export type DashboardView = 'overview' | 'data' | 'futures' | 'converter' | 'strategies' | 'library' | 'analytics' | 'settings';
 
 interface DashboardLayoutProps {
   currentView: DashboardView;
@@ -53,10 +54,16 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       description: 'Convert Pine Script to Python' 
     },
     { 
+      id: 'library', 
+      label: 'Strategy Library', 
+      icon: Library, 
+      description: 'Upload and manage trading strategies' 
+    },
+    { 
       id: 'strategies', 
-      label: 'Strategies', 
+      label: 'Backtesting', 
       icon: FileText, 
-      description: 'Manage converted strategies' 
+      description: 'Run strategy backtests and analysis' 
     },
     { 
       id: 'analytics', 

@@ -1,22 +1,22 @@
-# PineOpt - Professional Crypto Strategy Lab (Current State)
+# PineOpt - Advanced Crypto Algorithm Lab (Current State)
 
 ## 🎯 **What This Application Is:**
-A **professional-grade crypto trading platform** that combines Pine Script strategy conversion with advanced market data and TradingView-style charting for comprehensive crypto strategy development.
+An **advanced crypto algorithm research lab** that converts Pine Script strategies into Python code for backtesting and analysis. Provides professional-grade market data and visualization tools for crypto algorithm development and optimization.
 
 ## 🚀 **Core Features (Production Ready):**
 
-### **1. Advanced Futures Market Interface**
-- **470+ USDT Perpetual Contracts**: Complete Binance Futures coverage
-- **Real-time Market Data**: Live prices, 24h statistics, volume analysis
-- **Professional Trading Dashboard**: Search, filter, sort by volume/price/change
-- **Market Overview**: Gainers, losers, total volume, pair analytics
+### **1. Crypto Market Research Interface**
+- **470+ USDT Perpetual Contracts**: Complete market coverage for algorithm research
+- **Real-time Market Data**: Live prices, 24h statistics, volume analysis for backtesting
+- **Research Dashboard**: Search, filter, sort pairs for strategy development
+- **Market Analytics**: Gainers, losers, volume patterns for algorithm optimization
 
-### **2. TradingView-Style Charting**
-- **Professional Chart Interface**: Dark theme with precision formatting
-- **Multi-Timeframe Analysis**: 13 intervals (1m, 5m, 15m, 30m, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w)
-- **Flexible History Depth**: 100, 250, 500, 1K, 1.5K candles per chart
-- **Volume Visualization**: Color-coded histogram bars with trading activity
-- **Interactive Controls**: Crosshair, grid, zoom, fit content, chart tools
+### **2. Algorithm Visualization Charts**
+- **Research-Grade Charts**: Professional interface for strategy backtesting
+- **Multi-Timeframe Analysis**: 13 intervals for comprehensive algorithm testing
+- **Flexible History Depth**: 100 to 1.5K candles for strategy optimization
+- **Volume Analysis**: Color-coded visualization for algorithm development
+- **Interactive Research Tools**: Chart analysis tools for strategy refinement
 
 ### **3. High-Performance Data Infrastructure**
 - **Binance Futures API**: Primary data source with rate limiting
@@ -124,9 +124,9 @@ A **professional-grade crypto trading platform** that combines Pine Script strat
 - **Memory Optimization**: <500MB total usage including chart rendering
 
 ### **Platform Evolution:**
-PineOpt has evolved from a basic Pine Script converter to a **professional-grade crypto trading platform** with institutional-quality market data and charting capabilities.
+PineOpt has evolved from a basic Pine Script converter to an **advanced crypto algorithm research lab** with institutional-quality market data and professional visualization tools for strategy development.
 
 ---
 
 *Updated: August 21, 2025 - Epic 4 Complete*
-*Professional crypto trading platform powered by Binance Futures API*
+*Advanced crypto algorithm research lab powered by Binance Futures API*

@@ -38,7 +38,11 @@
       "Bash(git remote add:*)",
       "Bash(git push:*)",
       "WebFetch(domain:developers.binance.com)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(sqlite3:*)",
+      "Bash(pkill:*)",
+      "Bash(PORT=5007 python3:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

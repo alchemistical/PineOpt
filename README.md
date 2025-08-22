@@ -1,6 +1,6 @@
 # PineOpt 🚀
 
-> **Comprehensive Crypto Strategy Lab** - Pine Script to Python Conversion & Backtesting Platform
+> **Advanced Crypto Algorithm Lab** - Pine Script to Python Conversion & Strategy Research Platform
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
@@ -10,19 +10,19 @@
 
 ## 🎯 Overview
 
-PineOpt is a modern, full-stack crypto strategy development platform that bridges the gap between Pine Script strategies and Python backtesting. Built with a focus on performance, scalability, and developer experience.
+PineOpt is a modern crypto algorithm research lab that converts Pine Script strategies into Python code for backtesting and analysis. Built for developers and researchers to explore, optimize, and validate crypto trading algorithms with professional-grade market data.
 
 ### ✨ Key Features
 
-- 🔄 **Pine Script to Python Conversion**: Automated translation with AST parsing
-- 📊 **Futures Market Data**: 470+ USDT perpetual contracts from Binance API
-- 📈 **Professional Trading Charts**: TradingView-style interface with advanced controls
-- 📱 **Real-time Market Interface**: Live price feeds, 24h statistics, and market search
-- 🎛️ **Multi-Timeframe Analysis**: 1m to 1w intervals with history depth control
-- 🗄️ **High-Performance Database**: SQLite with precision financial data storage
-- 🎨 **Modern UI**: React/TypeScript with responsive Tailwind CSS design
-- 🚀 **Fast Development**: Vite build system with HMR and TypeScript support
-- 📦 **Epic-based Architecture**: Modular, scalable, and maintainable codebase
+- 🔄 **Pine Script to Python Conversion**: Automated algorithm translation with AST parsing
+- 📊 **Crypto Market Research**: 470+ USDT perpetual contracts for strategy analysis
+- 📈 **Algorithm Visualization**: TradingView-style charts for strategy backtesting
+- 📱 **Market Data Interface**: Live price feeds and historical data for research
+- 🎛️ **Multi-Timeframe Analysis**: 1m to 1w intervals for strategy optimization
+- 🗄️ **Research Database**: SQLite with precision financial data storage
+- 🧪 **Strategy Lab Environment**: React/TypeScript interface for algorithm development
+- 🚀 **Fast Iteration**: Vite build system optimized for strategy research
+- 📦 **Research-Focused Architecture**: Modular design for algorithm experimentation
 
 ## 🏗️ Architecture
 

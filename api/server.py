@@ -72,6 +72,16 @@ except ImportError as e:
 except Exception as e:
     logger.error(f"❌ Error registering futures routes: {e}")
 
+# Import and register strategy routes (Epic 5)
+try:
+    from strategy_routes import strategy_bp
+    app.register_blueprint(strategy_bp)
+    logger.info("✅ Strategy routes registered successfully")
+except ImportError as e:
+    logger.warning(f"⚠️ Could not import strategy routes: {e}")
+except Exception as e:
+    logger.error(f"❌ Error registering strategy routes: {e}")
+
 # Database setup
 DATABASE_PATH = Path(__file__).parent / "strategies.db"
 

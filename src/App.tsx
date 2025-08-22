@@ -16,6 +16,7 @@ import OverviewDashboard from './components/OverviewDashboard';
 import DataImportView from './components/DataImportView';
 import PineConverterView from './components/PineConverterView';
 import FuturesMarketView from './components/FuturesMarketView';
+import StrategyLibrary from './components/StrategyLibrary';
 import { Settings, FileText, Activity, Wrench } from 'lucide-react';
 
 // Placeholder components for upcoming features
@@ -138,6 +139,8 @@ function App() {
         }
       case 'converter':
         return <PineConverterView />;
+      case 'library':
+        return <StrategyLibrary />;
       case 'strategies':
         return <StrategiesView />;
       case 'analytics':
