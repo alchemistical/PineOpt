@@ -3,11 +3,20 @@ import { TrendingUp, Upload as UploadIcon, BarChart3, Download, Eye, Trash2, Glo
 import FileUpload from './FileUpload';
 import LightweightChart from './LightweightChart';
 import CryptoFetchPanel from './CryptoFetchPanel';
+import AssetScreener from './AssetScreener';
+import AssetChartView from './AssetChartView';
 import { parseCSV, parseExcel, convertToChartData } from '../utils/dataParser';
 import { OHLCData, ParsedOHLCData } from '../types';
 
+type DataImportView = 'screener' | 'chart' | 'upload' | 'tradingview-fetch';
+
 const DataImportView: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'upload' | 'tradingview'>('tradingview');
+  const [currentView, setCurrentView] = useState<DataImportView>('screener');
+  const [selectedAsset, setSelectedAsset] = useState<{
+    symbol: string;
+    startDate: string;
+    endDate: string;
+  } | null>(null);
   const [chartData, setChartData] = useState<ParsedOHLCData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>('');
@@ -105,6 +114,33 @@ const DataImportView: React.FC = () => {
     setError('');
   };
 
+  const handleAssetSelect = (symbol: string, startDate: string, endDate: string) => {
+    setSelectedAsset({ symbol, startDate, endDate });
+    setCurrentView('chart');
+  };
+
+  const handleBackToScreener = () => {
+    setSelectedAsset(null);
+    setCurrentView('screener');
+  };
+
+  // Main view router
+  if (currentView === 'chart' && selectedAsset) {
+    return (
+      <AssetChartView
+        symbol={selectedAsset.symbol}
+        startDate={selectedAsset.startDate}
+        endDate={selectedAsset.endDate}
+        onBack={handleBackToScreener}
+      />
+    );
+  }
+
+  if (currentView === 'screener') {
+    return <AssetScreener onAssetSelect={handleAssetSelect} />;
+  }
+
+  // Legacy views for upload and tradingview fetch
   if (chartData.length === 0) {
     return (
       <div className="space-y-8">
@@ -114,37 +150,39 @@ const DataImportView: React.FC = () => {
             <TrendingUp className="h-8 w-8 text-white" />
           </div>
           <h1 className="text-4xl font-bold text-white mb-3 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            Live Charts & Data
+            Market Data & Charts
           </h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Visualize crypto market data with professional TradingView charts. Import files or fetch live data from exchanges.
+            Professional crypto asset screener with historical charts and data analysis.
           </p>
         </div>
 
         {/* Enhanced Responsive Tab Navigation */}
         <div className="flex justify-center mb-10">
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 bg-gray-800/30 backdrop-blur-sm rounded-xl p-2 border border-gray-700/50 w-full max-w-2xl">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 bg-gray-800/30 backdrop-blur-sm rounded-xl p-2 border border-gray-700/50 w-full max-w-3xl">
             <button
-              onClick={() => setActiveTab('tradingview')}
-              className={`flex items-center justify-center sm:justify-start space-x-3 px-4 sm:px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex-1 ${
-                activeTab === 'tradingview'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-              }`}
+              onClick={() => setCurrentView('screener')}
+              className="flex items-center justify-center sm:justify-start space-x-3 px-4 sm:px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
             >
-              <Globe className="h-5 w-5 flex-shrink-0" />
+              <BarChart3 className="h-5 w-5 flex-shrink-0" />
               <div className="text-center sm:text-left">
-                <div className="font-semibold">Live Crypto Data</div>
-                <div className="text-xs opacity-75 hidden sm:block">Binance, TradingView</div>
+                <div className="font-semibold">Asset Screener</div>
+                <div className="text-xs opacity-75 hidden sm:block">Live market data</div>
               </div>
             </button>
             <button
-              onClick={() => setActiveTab('upload')}
-              className={`flex items-center justify-center sm:justify-start space-x-3 px-4 sm:px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex-1 ${
-                activeTab === 'upload'
-                  ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700/50'
-              }`}
+              onClick={() => setCurrentView('tradingview-fetch')}
+              className="flex items-center justify-center sm:justify-start space-x-3 px-4 sm:px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex-1 text-gray-400 hover:text-white hover:bg-gray-700/50"
+            >
+              <Globe className="h-5 w-5 flex-shrink-0" />
+              <div className="text-center sm:text-left">
+                <div className="font-semibold">Single Asset Fetch</div>
+                <div className="text-xs opacity-75 hidden sm:block">Custom parameters</div>
+              </div>
+            </button>
+            <button
+              onClick={() => setCurrentView('upload')}
+              className="flex items-center justify-center sm:justify-start space-x-3 px-4 sm:px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex-1 text-gray-400 hover:text-white hover:bg-gray-700/50"
             >
               <FileText className="h-5 w-5 flex-shrink-0" />
               <div className="text-center sm:text-left">
@@ -157,9 +195,9 @@ const DataImportView: React.FC = () => {
 
         {/* Tab Content */}
         <div className="max-w-4xl mx-auto">
-          {activeTab === 'tradingview' ? (
+          {currentView === 'tradingview-fetch' ? (
             <CryptoFetchPanel onDataFetched={handleTradingViewData} />
-          ) : (
+          ) : currentView === 'upload' ? (
             <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/30 shadow-2xl">
               <div className="text-center mb-8">
                 <div className="p-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-2xl w-20 h-20 mx-auto mb-6 flex items-center justify-center border border-green-500/20">
@@ -271,7 +309,7 @@ const DataImportView: React.FC = () => {
                 </div>
               </div>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     );

@@ -134,7 +134,7 @@ const StrategyUpload: React.FC<StrategyUploadProps> = ({ onStrategyUploaded, onC
       formData.append('author', author || 'Unknown');
       formData.append('tags', tags);
       
-      const response = await fetch('/api/strategies/upload', {
+      const response = await fetch('http://localhost:5001/api/strategies/upload', {
         method: 'POST',
         body: formData
       });

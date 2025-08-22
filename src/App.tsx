@@ -1,22 +1,13 @@
 import React, { useState } from 'react';
 
-// Simple test component first
-const TestComponent: React.FC = () => (
-  <div style={{ color: 'white', backgroundColor: '#111', padding: '20px', minHeight: '100vh' }}>
-    <h1>🎉 React App Loading Test</h1>
-    <p>If you see this, React is working!</p>
-    <button onClick={() => alert('Button works!')} style={{ padding: '10px', margin: '10px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '4px' }}>
-      Test Button
-    </button>
-  </div>
-);
-
-import DashboardLayout, { DashboardView } from './components/DashboardLayout';
-import OverviewDashboard from './components/OverviewDashboard';
-import DataImportView from './components/DataImportView';
-import PineConverterView from './components/PineConverterView';
-import FuturesMarketView from './components/FuturesMarketView';
+// New CryptoLab Pro imports
+import CryptoLabLayout, { CryptoLabView } from './components/CryptoLabLayout';
+import CryptoLabDashboard from './components/CryptoLabDashboard';
 import StrategyLibrary from './components/StrategyLibrary';
+import StrategyDashboard from './components/StrategyDashboard';
+import BacktestResults from './components/BacktestResults';
+import ExecutionMonitor from './components/ExecutionMonitor';
+import DataImportView from './components/DataImportView';
 import { Settings, FileText, Activity, Wrench } from 'lucide-react';
 
 // Placeholder components for upcoming features
@@ -116,49 +107,108 @@ const SettingsView: React.FC = () => (
 );
 
 function App() {
-  // Test: Try just the basic dashboard layout without complex components
-  const [currentView, setCurrentView] = useState<DashboardView>('overview');
+  const [currentView, setCurrentView] = useState<CryptoLabView>('dashboard');
+  const [selectedStrategy, setSelectedStrategy] = useState<any>(null);
 
-  // Test one component at a time
   const renderView = () => {
     switch (currentView) {
-      case 'overview':
-        return <OverviewDashboard onNavigate={setCurrentView} />;
-      case 'futures':
-        return <FuturesMarketView />;
-      case 'data':
-        try {
-          return <DataImportView />;
-        } catch (error) {
+      case 'dashboard':
+        return <CryptoLabDashboard onNavigate={setCurrentView} />;
+      
+      case 'development':
+        return <StrategyDashboard 
+          onStrategySelect={setSelectedStrategy}
+          onRunBacktest={(strategy) => {
+            setSelectedStrategy(strategy);
+            setCurrentView('backtesting');
+          }}
+        />;
+      
+      case 'backtesting':
+        if (selectedStrategy) {
+          // Mock backtest result for demonstration
+          const mockBacktestResult = {
+            id: 'demo-backtest',
+            strategy_id: selectedStrategy.id,
+            strategy_name: selectedStrategy.name,
+            start_date: '2023-01-01',
+            end_date: '2024-01-01',
+            initial_capital: 10000,
+            final_capital: 12500,
+            status: 'completed' as const,
+            metrics: {
+              total_return: 2500,
+              total_return_percentage: 25.0,
+              annualized_return: 25.0,
+              max_drawdown: -8.5,
+              sharpe_ratio: 1.85,
+              sortino_ratio: 2.12,
+              win_rate: 68.2,
+              profit_factor: 1.75,
+              total_trades: 45,
+              winning_trades: 31,
+              losing_trades: 14,
+              avg_win: 120.50,
+              avg_loss: -65.30,
+              largest_win: 450.75,
+              largest_loss: -180.25,
+              avg_trade_duration: 18.5,
+              volatility: 0.15,
+              var_95: -250.0,
+              calmar_ratio: 2.94,
+              sterling_ratio: 2.56
+            },
+            trades: [],
+            equity_curve: [],
+            drawdown_curve: [],
+            price_data: [],
+            created_at: new Date().toISOString(),
+            execution_time_ms: 1250
+          };
+          
+          return <BacktestResults 
+            result={mockBacktestResult} 
+            onClose={() => setCurrentView('development')}
+          />;
+        } else {
           return (
-            <div style={{ color: 'red', padding: '20px' }}>
-              <h2>DataImportView Error:</h2>
-              <p>{String(error)}</p>
+            <div className="p-6 text-center">
+              <h2 className="text-xl font-bold text-white mb-4">Backtesting Lab</h2>
+              <p className="text-slate-400">Select a strategy from the Development section to run backtests.</p>
             </div>
           );
         }
-      case 'converter':
-        return <PineConverterView />;
-      case 'library':
-        return <StrategyLibrary />;
-      case 'strategies':
-        return <StrategiesView />;
-      case 'analytics':
-        return <AnalyticsView />;
+      
+      case 'execution':
+        return <ExecutionMonitor />;
+      
+      case 'market-data':
+        return <DataImportView />;
+      
+      case 'research':
+        return <StrategyLibrary 
+          onStrategySelect={setSelectedStrategy}
+          onRunBacktest={(strategy) => {
+            setSelectedStrategy(strategy);
+            setCurrentView('backtesting');
+          }}
+        />;
+      
       case 'settings':
         return <SettingsView />;
+      
       default:
-        return <OverviewDashboard onNavigate={setCurrentView} />;
+        return <CryptoLabDashboard />;
     }
   };
 
   return (
-    <DashboardLayout 
+    <CryptoLabLayout 
       currentView={currentView} 
       onViewChange={setCurrentView}
     >
       {renderView()}
-    </DashboardLayout>
+    </CryptoLabLayout>
   );
 }
 

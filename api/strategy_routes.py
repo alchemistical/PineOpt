@@ -22,6 +22,7 @@ from database.strategy_models import (
     ValidationResult, ParameterType
 )
 from research.validation.code_validator import CodeValidator
+from research.analysis.strategy_profiler import StrategyProfiler
 
 logger = logging.getLogger(__name__)
 
@@ -529,6 +530,71 @@ def get_strategy_stats():
         
     except Exception as e:
         logger.error(f"Failed to get strategy stats: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@strategy_bp.route('/<strategy_id>/profile', methods=['POST'])
+def generate_strategy_profile(strategy_id: str):
+    """Generate AI-powered strategy analysis and profile"""
+    try:
+        strategy = db.get_strategy(strategy_id)
+        
+        if not strategy:
+            return jsonify({
+                'success': False,
+                'error': 'Strategy not found'
+            }), 404
+        
+        # Initialize strategy profiler
+        profiler = StrategyProfiler()
+        
+        # Generate comprehensive profile
+        profile = profiler.profile_strategy(
+            strategy_id=strategy.id,
+            name=strategy.name,
+            source_code=strategy.source_code,
+            language=strategy.language.value,
+            author=strategy.author
+        )
+        
+        # Convert profile to response format
+        profile_data = {
+            'strategy_id': profile.strategy_id,
+            'analysis_summary': {
+                'strategy_type': profile.strategy_type,
+                'complexity_score': profile.complexity_score,
+                'lines_of_code': profile.lines_of_code,
+                'indicators_used': profile.indicators_used,
+                'risk_level': profile.expected_risk_level,
+                'trading_frequency': profile.expected_frequency
+            },
+            'technical_analysis': {
+                'indicators_detected': profile.indicators_used,
+                'signal_types': profile.signal_types,
+                'has_risk_management': profile.has_risk_management,
+                'has_stop_loss': profile.has_stop_loss,
+                'has_position_sizing': profile.has_position_sizing
+            },
+            'ai_insights': {
+                'summary': profile.ai_summary,
+                'strengths': profile.ai_strengths,
+                'weaknesses': profile.ai_weaknesses,
+                'recommendations': profile.ai_recommendations,
+                'market_suitability': profile.ai_market_suitability
+            },
+            'full_report': profile.full_report,
+            'generated_at': profile.analysis_timestamp.isoformat()
+        }
+        
+        return jsonify({
+            'success': True,
+            'profile': profile_data
+        })
+        
+    except Exception as e:
+        logger.error(f"Strategy profiling failed: {e}")
         return jsonify({
             'success': False,
             'error': str(e)

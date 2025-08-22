@@ -19,7 +19,13 @@ import {
   Trash2,
   Loader,
   RefreshCw,
-  Download
+  Download,
+  Brain,
+  TrendingUp,
+  Shield,
+  Zap,
+  Target,
+  Activity
 } from 'lucide-react';
 
 import StrategyUpload from './StrategyUpload';
@@ -43,6 +49,34 @@ interface Strategy {
   last_used: string | null;
 }
 
+interface StrategyProfile {
+  strategy_id: string;
+  analysis_summary: {
+    strategy_type: string;
+    complexity_score: number;
+    lines_of_code: number;
+    indicators_used: string[];
+    risk_level: string;
+    trading_frequency: string;
+  };
+  technical_analysis: {
+    indicators_detected: string[];
+    signal_types: string[];
+    has_risk_management: boolean;
+    has_stop_loss: boolean;
+    has_position_sizing: boolean;
+  };
+  ai_insights: {
+    summary: string;
+    strengths: string[];
+    weaknesses: string[];
+    recommendations: string[];
+    market_suitability: string;
+  };
+  full_report: string;
+  generated_at: string;
+}
+
 interface StrategyLibraryProps {
   onStrategySelect?: (strategy: Strategy) => void;
   onRunBacktest?: (strategy: Strategy) => void;
@@ -53,6 +87,12 @@ const StrategyLibrary: React.FC<StrategyLibraryProps> = ({ onStrategySelect, onR
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showUpload, setShowUpload] = useState(false);
+  
+  // AI Profiling state
+  const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
+  const [strategyProfile, setStrategyProfile] = useState<StrategyProfile | null>(null);
+  const [profilingLoading, setProfilingLoading] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -82,7 +122,7 @@ const StrategyLibrary: React.FC<StrategyLibraryProps> = ({ onStrategySelect, onR
       params.append('limit', '20');
       params.append('offset', (reset ? 0 : currentPage * 20).toString());
       
-      const response = await fetch(`/api/strategies?${params}`);
+      const response = await fetch(`http://localhost:5001/api/strategies?${params}`);
       const data = await response.json();
       
       if (!response.ok || !data.success) {
@@ -122,7 +162,7 @@ const StrategyLibrary: React.FC<StrategyLibraryProps> = ({ onStrategySelect, onR
     }
     
     try {
-      const response = await fetch(`/api/strategies/${strategyId}`, {
+      const response = await fetch(`http://localhost:5001/api/strategies/${strategyId}`, {
         method: 'DELETE'
       });
       
@@ -144,6 +184,121 @@ const StrategyLibrary: React.FC<StrategyLibraryProps> = ({ onStrategySelect, onR
     // Add to the top of the list
     setStrategies(prev => [strategy, ...prev]);
     setShowUpload(false);
+  };
+
+  const handleGenerateProfile = async (strategy: Strategy) => {
+    if (strategy.validation_status !== 'valid') {
+      alert('Strategy must be valid to generate AI profile');
+      return;
+    }
+
+    try {
+      setProfilingLoading(true);
+      setSelectedStrategy(strategy);
+      setShowProfileModal(true);
+
+      const response = await fetch(`http://localhost:5001/api/strategies/${strategy.id}/profile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to generate strategy profile');
+      }
+
+      setStrategyProfile(data.profile);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to generate AI profile');
+      setShowProfileModal(false);
+    } finally {
+      setProfilingLoading(false);
+    }
+  };
+
+  const handleRunBacktest = async (strategy: Strategy) => {
+    if (strategy.validation_status !== 'valid') {
+      alert('Strategy must be valid to run backtests');
+      return;
+    }
+
+    try {
+      // Call the parent callback if provided
+      onRunBacktest?.(strategy);
+      
+      // For now, show a confirmation that the backtest is initiated
+      const shouldRun = confirm(
+        `Run backtest for "${strategy.name}"?\n\n` +
+        `This will execute the strategy against historical data.\n` +
+        `Default settings:\n` +
+        `• Start Date: 2023-01-01\n` +
+        `• End Date: 2024-01-01\n` +
+        `• Initial Capital: $10,000\n\n` +
+        `Click OK to proceed.`
+      );
+
+      if (shouldRun) {
+        // Log the backtest request for development
+        console.log('Backtest requested for strategy:', {
+          id: strategy.id,
+          name: strategy.name,
+          language: strategy.language,
+          validation_status: strategy.validation_status
+        });
+
+        alert(
+          `Backtest initiated for "${strategy.name}"!\n\n` +
+          `The strategy is now being executed against historical data. ` +
+          `Results will be available in the backtesting dashboard once complete.\n\n` +
+          `Note: This is a demonstration. In production, this would trigger ` +
+          `the actual backtesting engine.`
+        );
+
+        // Update backtest count optimistically
+        setStrategies(prev => prev.map(s => 
+          s.id === strategy.id 
+            ? { ...s, backtest_count: s.backtest_count + 1, last_used: new Date().toISOString() }
+            : s
+        ));
+      }
+    } catch (error) {
+      console.error('Backtest error:', error);
+      alert(`Error starting backtest: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const handleEditStrategy = (strategy: Strategy) => {
+    try {
+      // For now, show the strategy details in a simple dialog
+      const details = `
+Strategy: ${strategy.name}
+Author: ${strategy.author}
+Language: ${strategy.language}
+Status: ${strategy.validation_status}
+Created: ${new Date(strategy.created_at).toLocaleString()}
+Parameters: ${strategy.parameters_count}
+Dependencies: ${strategy.dependencies_count}
+Backtests: ${strategy.backtest_count}
+
+Description: ${strategy.description || 'No description provided'}
+
+Tags: ${strategy.tags.join(', ') || 'No tags'}
+      `;
+      
+      const shouldEdit = confirm(`Strategy Details:\n\n${details}\n\nWould you like to open the editing interface?`);
+      
+      if (shouldEdit) {
+        // Call the parent callback if provided
+        onStrategySelect?.(strategy);
+        alert('Strategy editing interface will open in the Strategy Dashboard. This feature is being developed.');
+      }
+    } catch (error) {
+      console.error('Edit strategy error:', error);
+      alert('Error opening strategy editor');
+    }
   };
   
   const getStatusIcon = (status: string) => {
@@ -384,7 +539,7 @@ const StrategyLibrary: React.FC<StrategyLibraryProps> = ({ onStrategySelect, onR
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onRunBacktest?.(strategy);
+                    handleRunBacktest(strategy);
                   }}
                   disabled={strategy.validation_status !== 'valid'}
                   className="flex items-center space-x-1 px-3 py-1 bg-green-600/20 hover:bg-green-600/30 border border-green-600/30 rounded text-green-400 text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
@@ -396,12 +551,24 @@ const StrategyLibrary: React.FC<StrategyLibraryProps> = ({ onStrategySelect, onR
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    // TODO: Open edit modal
+                    handleEditStrategy(strategy);
                   }}
                   className="flex items-center space-x-1 px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-600/30 rounded text-blue-400 text-xs transition-colors"
                 >
                   <Edit className="h-3 w-3" />
                   <span>Edit</span>
+                </button>
+                
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleGenerateProfile(strategy);
+                  }}
+                  disabled={strategy.validation_status !== 'valid'}
+                  className="flex items-center space-x-1 px-3 py-1 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-600/30 rounded text-purple-400 text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Brain className="h-3 w-3" />
+                  <span>AI Profile</span>
                 </button>
               </div>
               
@@ -462,6 +629,237 @@ const StrategyLibrary: React.FC<StrategyLibraryProps> = ({ onStrategySelect, onR
               </>
             )}
           </button>
+        </div>
+      )}
+      
+      {/* AI Profiling Modal */}
+      {showProfileModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-gray-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto border border-gray-600">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-700">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-purple-600/20 rounded-lg">
+                  <Brain className="h-5 w-5 text-purple-400" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white">AI Strategy Profile</h2>
+                  <p className="text-gray-400">{selectedStrategy?.name}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowProfileModal(false);
+                  setStrategyProfile(null);
+                  setSelectedStrategy(null);
+                }}
+                className="p-2 text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {profilingLoading ? (
+                <div className="flex flex-col items-center justify-center py-12 space-y-4">
+                  <div className="relative">
+                    <div className="p-4 bg-purple-600/20 rounded-full">
+                      <Brain className="h-8 w-8 text-purple-400 animate-pulse" />
+                    </div>
+                    <div className="absolute inset-0 rounded-full border-2 border-purple-500/30 border-t-purple-500 animate-spin"></div>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-lg font-semibold text-white">Analyzing Strategy</h3>
+                    <p className="text-gray-400">AI is profiling your trading algorithm...</p>
+                  </div>
+                </div>
+              ) : strategyProfile ? (
+                <>
+                  {/* Analysis Summary */}
+                  <div className="bg-gray-700/30 rounded-lg p-6 border border-gray-600/50">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                      <BarChart3 className="h-5 w-5 text-blue-400" />
+                      <span>Analysis Summary</span>
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-blue-400">
+                          {strategyProfile.analysis_summary.strategy_type.replace('_', ' ').toUpperCase()}
+                        </div>
+                        <div className="text-sm text-gray-400">Strategy Type</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-green-400">
+                          {strategyProfile.analysis_summary.complexity_score}/100
+                        </div>
+                        <div className="text-sm text-gray-400">Complexity</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-400">
+                          {strategyProfile.analysis_summary.lines_of_code}
+                        </div>
+                        <div className="text-sm text-gray-400">Lines of Code</div>
+                      </div>
+                      <div className="text-center">
+                        <div className={`text-2xl font-bold ${
+                          strategyProfile.analysis_summary.risk_level === 'low' ? 'text-green-400' :
+                          strategyProfile.analysis_summary.risk_level === 'medium' ? 'text-yellow-400' :
+                          'text-red-400'
+                        }`}>
+                          {strategyProfile.analysis_summary.risk_level.toUpperCase()}
+                        </div>
+                        <div className="text-sm text-gray-400">Risk Level</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Technical Analysis */}
+                  <div className="bg-gray-700/30 rounded-lg p-6 border border-gray-600/50">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                      <TrendingUp className="h-5 w-5 text-green-400" />
+                      <span>Technical Analysis</span>
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="font-medium text-white mb-2">Indicators Used</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {strategyProfile.technical_analysis.indicators_detected.map((indicator, index) => (
+                            <span
+                              key={index}
+                              className="px-3 py-1 bg-blue-600/20 border border-blue-600/30 rounded text-blue-400 text-sm"
+                            >
+                              {indicator}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-white mb-2">Risk Management</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Stop Loss</span>
+                            <div className="flex items-center space-x-1">
+                              {strategyProfile.technical_analysis.has_stop_loss ? 
+                                <CheckCircle className="h-4 w-4 text-green-400" /> :
+                                <AlertCircle className="h-4 w-4 text-red-400" />
+                              }
+                              <span className={strategyProfile.technical_analysis.has_stop_loss ? 'text-green-400' : 'text-red-400'}>
+                                {strategyProfile.technical_analysis.has_stop_loss ? 'Yes' : 'No'}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-gray-400">Position Sizing</span>
+                            <div className="flex items-center space-x-1">
+                              {strategyProfile.technical_analysis.has_position_sizing ? 
+                                <CheckCircle className="h-4 w-4 text-green-400" /> :
+                                <AlertCircle className="h-4 w-4 text-red-400" />
+                              }
+                              <span className={strategyProfile.technical_analysis.has_position_sizing ? 'text-green-400' : 'text-red-400'}>
+                                {strategyProfile.technical_analysis.has_position_sizing ? 'Yes' : 'No'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* AI Insights */}
+                  <div className="bg-gray-700/30 rounded-lg p-6 border border-gray-600/50">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                      <Zap className="h-5 w-5 text-yellow-400" />
+                      <span>AI Insights</span>
+                    </h3>
+                    
+                    {/* Summary */}
+                    <div className="mb-6">
+                      <h4 className="font-medium text-white mb-2">Summary</h4>
+                      <p className="text-gray-300">{strategyProfile.ai_insights.summary}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {/* Strengths */}
+                      <div>
+                        <h4 className="font-medium text-white mb-2 flex items-center space-x-1">
+                          <Shield className="h-4 w-4 text-green-400" />
+                          <span>Strengths</span>
+                        </h4>
+                        <ul className="space-y-2">
+                          {strategyProfile.ai_insights.strengths.map((strength, index) => (
+                            <li key={index} className="flex items-start space-x-2">
+                              <CheckCircle className="h-4 w-4 text-green-400 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-300 text-sm">{strength}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      {/* Weaknesses */}
+                      <div>
+                        <h4 className="font-medium text-white mb-2 flex items-center space-x-1">
+                          <AlertTriangle className="h-4 w-4 text-red-400" />
+                          <span>Weaknesses</span>
+                        </h4>
+                        <ul className="space-y-2">
+                          {strategyProfile.ai_insights.weaknesses.map((weakness, index) => (
+                            <li key={index} className="flex items-start space-x-2">
+                              <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-300 text-sm">{weakness}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      {/* Recommendations */}
+                      <div>
+                        <h4 className="font-medium text-white mb-2 flex items-center space-x-1">
+                          <Target className="h-4 w-4 text-blue-400" />
+                          <span>Recommendations</span>
+                        </h4>
+                        <ul className="space-y-2">
+                          {strategyProfile.ai_insights.recommendations.map((recommendation, index) => (
+                            <li key={index} className="flex items-start space-x-2">
+                              <Activity className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-300 text-sm">{recommendation}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                    
+                    {/* Market Suitability */}
+                    <div className="mt-6 p-4 bg-blue-600/10 border border-blue-600/20 rounded-lg">
+                      <h4 className="font-medium text-white mb-2">Market Suitability</h4>
+                      <p className="text-blue-300">{strategyProfile.ai_insights.market_suitability}</p>
+                    </div>
+                  </div>
+
+                  {/* Full Report */}
+                  <div className="bg-gray-700/30 rounded-lg p-6 border border-gray-600/50">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center space-x-2">
+                      <FileText className="h-5 w-5 text-gray-400" />
+                      <span>Detailed Report</span>
+                    </h3>
+                    <div className="bg-gray-900/50 rounded-lg p-4 max-h-64 overflow-y-auto">
+                      <pre className="text-gray-300 text-sm whitespace-pre-wrap font-mono">
+                        {strategyProfile.full_report}
+                      </pre>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="p-4 bg-red-600/20 rounded-full w-fit mx-auto mb-4">
+                    <AlertCircle className="h-8 w-8 text-red-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-2">Failed to Generate Profile</h3>
+                  <p className="text-gray-400">Unable to analyze the strategy. Please try again.</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

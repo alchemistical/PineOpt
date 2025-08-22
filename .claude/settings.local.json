@@ -42,7 +42,11 @@
       "Bash(sqlite3:*)",
       "Bash(pkill:*)",
       "Bash(PORT=5007 python3:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "WebFetch(domain:pineify.app)",
+      "WebFetch(domain:pynescript.readthedocs.io)",
+      "Bash(chmod:*)",
+      "Bash(./scripts/run-tests.sh:*)"
     ],
     "deny": [],
     "ask": []

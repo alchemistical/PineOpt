@@ -82,6 +82,26 @@ except ImportError as e:
 except Exception as e:
     logger.error(f"❌ Error registering strategy routes: {e}")
 
+# Import and register backtest routes (Epic 5 Sprint 2)
+try:
+    from .backtest_routes import backtest_bp
+    app.register_blueprint(backtest_bp)
+    logger.info("✅ Backtest routes registered successfully")
+except ImportError as e:
+    logger.warning(f"⚠️ Could not import backtest routes: {e}")
+except Exception as e:
+    logger.error(f"❌ Error registering backtest routes: {e}")
+
+# Import and register market data routes (Phase 1)
+try:
+    from .market_routes import market_bp
+    app.register_blueprint(market_bp, url_prefix='/api/market')
+    logger.info("✅ Market data routes registered successfully")
+except ImportError as e:
+    logger.warning(f"⚠️ Could not import market routes: {e}")
+except Exception as e:
+    logger.error(f"❌ Error registering market routes: {e}")
+
 # Database setup
 DATABASE_PATH = Path(__file__).parent / "strategies.db"
 

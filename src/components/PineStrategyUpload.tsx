@@ -136,7 +136,7 @@ const PineStrategyUpload: React.FC<PineStrategyUploadProps> = ({ onStrategyProce
     setError('');
 
     try {
-      const response = await fetch('/api/strategies', {
+      const response = await fetch('http://localhost:5001/api/strategies', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

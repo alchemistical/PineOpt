@@ -190,7 +190,7 @@ class BinanceFuturesProvider:
             # Add metadata
             df['symbol'] = symbol
             df['timeframe'] = interval
-            df['timestamp'] = df['open_time'].astype(int) // 10**9  # Unix timestamp
+            df['timestamp'] = df['open_time'].astype(int) // 10**6  # Convert nanoseconds to milliseconds
             
             # Reorder columns for consistency
             df = df[['timestamp', 'open_time', 'symbol', 'timeframe', 'open', 'high', 'low', 'close', 'volume']]
