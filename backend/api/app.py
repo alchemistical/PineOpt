@@ -12,17 +12,31 @@ import logging
 import os
 from datetime import datetime
 
-# Import blueprints (will be created in Sprint 1)
-# from .routes.health import health_bp
-# from .routes.market_data import market_bp
-# from .routes.strategies import strategy_bp
-# from .routes.conversions import conversion_bp
-# from .routes.backtests import backtest_bp
+# Import blueprints - Epic 7 implementation
+try:
+    # Try relative import first (when used as module)
+    from .routes.health import health_bp
+    from .routes.market_data import market_bp
+    from .routes.strategies import strategy_bp
+    from .routes.conversions import conversion_bp  # Sprint 2
+    from .routes.backtests import backtest_bp     # Sprint 2
+    from .routes.monitoring import monitoring_bp   # Sprint 3
+except ImportError:
+    # Fall back to absolute import (when run directly)
+    from routes.health import health_bp
+    from routes.market_data import market_bp
+    from routes.strategies import strategy_bp
+    from routes.conversions import conversion_bp  # Sprint 2
+    from routes.backtests import backtest_bp     # Sprint 2
+    from routes.monitoring import monitoring_bp   # Sprint 3
 
-# Import middleware (will be created in Sprint 2)  
-# from .middleware.error_handling import init_error_handlers
-# from .middleware.rate_limiting import init_rate_limiting
-# from .middleware.logging import init_logging
+# Import middleware - Sprint 2 ACTIVE
+try:
+    # Try relative import first (when used as module)
+    from .middleware import init_error_handlers, init_rate_limiting, init_logging, init_cors
+except ImportError:
+    # Fall back to absolute import (when run directly)
+    from middleware import init_error_handlers, init_rate_limiting, init_logging, init_cors
 
 
 class Config:
@@ -36,7 +50,12 @@ class Config:
     API_PORT = int(os.environ.get('API_PORT', 5007))
     
     # CORS Configuration
-    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000').split(',')
+    CORS_ORIGINS = os.environ.get('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5173')
+    
+    # Rate Limiting Configuration
+    ENABLE_RATE_LIMITING = os.environ.get('ENABLE_RATE_LIMITING', 'true').lower() == 'true'
+    GLOBAL_RATE_LIMIT_PER_MINUTE = int(os.environ.get('GLOBAL_RATE_LIMIT_PER_MINUTE', 100))
+    GLOBAL_RATE_LIMIT_PER_HOUR = int(os.environ.get('GLOBAL_RATE_LIMIT_PER_HOUR', 2000))
     
     # Logging
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
@@ -84,19 +103,17 @@ def create_app(config_name='default'):
     # Load configuration
     app.config.from_object(config[config_name])
     
-    # Initialize CORS
-    CORS(app, origins=app.config['CORS_ORIGINS'])
-    
-    # Configure logging
+    # Configure basic logging (enhanced by middleware)
     logging.basicConfig(
         level=getattr(logging, app.config['LOG_LEVEL']),
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    # Initialize middleware (Sprint 2)
-    # init_error_handlers(app)
-    # init_rate_limiting(app)  
-    # init_logging(app)
+    # Initialize production middleware - Sprint 2 ACTIVE
+    init_error_handlers(app)
+    init_rate_limiting(app)
+    init_logging(app)
+    init_cors(app)  # This replaces the basic CORS setup above
     
     # Register blueprints (Sprint 1)
     register_blueprints(app)
@@ -122,14 +139,28 @@ def create_app(config_name='default'):
             'prefix': app.config['API_PREFIX'],
             'epic': 'Epic 7 - API Architecture Rationalization',
             'status': 'Under Development',
+            'documentation': {
+                'interactive': '/docs/',
+                'swagger_ui': '/docs/swagger',
+                'openapi_spec': '/docs/openapi.json'
+            },
             'endpoints': {
                 'health': '/api/health',
                 'market': f"{app.config['API_PREFIX']}/market",
                 'strategies': f"{app.config['API_PREFIX']}/strategies",
                 'conversions': f"{app.config['API_PREFIX']}/conversions",
-                'backtests': f"{app.config['API_PREFIX']}/backtests"
+                'backtests': f"{app.config['API_PREFIX']}/backtests",
+                'monitoring': f"{app.config['API_PREFIX']}/monitoring"
             }
         })
+    
+    # Initialize interactive documentation - Sprint 3 Task 2
+    try:
+        from docs.doc_generator import create_interactive_docs
+        create_interactive_docs(app, route_prefix="/docs")
+        app.logger.info("📚 Interactive API documentation available at /docs/")
+    except ImportError as e:
+        app.logger.warning(f"Documentation system not available: {e}")
     
     return app
 
@@ -138,18 +169,28 @@ def register_blueprints(app):
     """
     Register all API blueprints
     
-    This will be implemented in Sprint 1 as blueprints are created
+    Sprint 1: Health, Market Data, Strategy blueprints
+    Sprint 2: Conversion, Backtest blueprints
     """
-    # Sprint 1 blueprints
-    # app.register_blueprint(health_bp)
-    # app.register_blueprint(market_bp)
-    # app.register_blueprint(strategy_bp)
+    # Sprint 1 blueprints - ACTIVE
+    app.register_blueprint(health_bp)
+    app.register_blueprint(market_bp)
+    app.register_blueprint(strategy_bp)
     
-    # Sprint 2 blueprints  
-    # app.register_blueprint(conversion_bp)
-    # app.register_blueprint(backtest_bp)
+    # Sprint 2 blueprints - NOW ACTIVE
+    app.register_blueprint(conversion_bp)
+    app.register_blueprint(backtest_bp)
     
-    app.logger.info("Blueprint registration completed")
+    # Sprint 3 blueprints - NOW ACTIVE  
+    app.register_blueprint(monitoring_bp)
+    
+    app.logger.info("Epic 7 Sprint 3 blueprints registered successfully")
+    app.logger.info("  ✅ Health check routes: /api/v1/health/")
+    app.logger.info("  ✅ Market data routes: /api/v1/market/")
+    app.logger.info("  ✅ Strategy routes: /api/v1/strategies/")
+    app.logger.info("  ✅ Conversion routes: /api/v1/conversions/")
+    app.logger.info("  ✅ Backtest routes: /api/v1/backtests/")
+    app.logger.info("  ✅ Monitoring routes: /api/v1/monitoring/")
 
 
 if __name__ == '__main__':
@@ -172,9 +213,8 @@ API Endpoints:
   • API Info: http://localhost:{port}/api
   
 Epic 7 Progress:
-  ✅ Application factory pattern implemented
-  🔄 Sprint 1: Blueprint consolidation in progress
-  ⏳ Sprint 2: Middleware implementation planned
+  ✅ Sprint 1: Blueprint consolidation complete
+  ✅ Sprint 2: Conversion & production middleware complete
   ⏳ Sprint 3: Documentation & testing planned
 
 Ready for development! 🎯

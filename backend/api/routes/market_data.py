@@ -42,8 +42,11 @@ def market_info():
             'overview': '/api/v1/market/overview',
             'symbols': '/api/v1/market/symbols',
             'tickers': '/api/v1/market/tickers',
+            'ticker': '/api/v1/market/ticker/<symbol>',
             'ohlc': '/api/v1/market/ohlc/<symbol>',
-            'futures': '/api/v1/market/futures/pairs'
+            'futures_pairs': '/api/v1/market/futures/pairs',
+            'futures_search': '/api/v1/market/futures/search',
+            'status': '/api/v1/market/status'
         },
         'status': 'Sprint 1 - Implementation in progress',
         'consolidates': [
@@ -65,30 +68,22 @@ def market_overview():
         JSON response with market overview data
     """
     try:
-        # TODO: Implement actual market overview logic
-        # This is a placeholder for Sprint 1 development
+        # Import market data service from original implementation
+        import sys
+        import os
+        root_path = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+        if root_path not in sys.path:
+            sys.path.append(root_path)
         
-        # Import database access
-        from backend.database.unified_data_access import UnifiedDataAccess
-        da = UnifiedDataAccess()
+        from api.market_data_service import market_service
         
-        # Get market tickers
-        tickers = da.get_market_tickers()
-        
-        # Sort by various criteria
-        gainers = sorted(tickers, key=lambda x: x.get('change_percent_24h', 0), reverse=True)[:10]
-        losers = sorted(tickers, key=lambda x: x.get('change_percent_24h', 0))[:10]
-        volume_leaders = sorted(tickers, key=lambda x: x.get('volume_24h', 0), reverse=True)[:10]
+        # Get market overview from service
+        overview = market_service.get_market_overview()
         
         return jsonify({
             'timestamp': datetime.utcnow().isoformat(),
             'epic': 'Epic 7 Sprint 1',
-            'market_overview': {
-                'total_pairs': len(tickers),
-                'gainers': gainers,
-                'losers': losers,
-                'volume_leaders': volume_leaders
-            },
+            'market_overview': overview,
             'status': 'success'
         })
     
@@ -112,10 +107,18 @@ def get_symbols():
         JSON response with available symbols
     """
     try:
-        from backend.database.unified_data_access import UnifiedDataAccess
-        da = UnifiedDataAccess()
+        # Import market data service from original implementation
+        import sys
+        import os
+        root_path = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+        if root_path not in sys.path:
+            sys.path.append(root_path)
         
-        symbols = da.get_available_symbols()
+        from api.market_data_service import market_service
+        
+        # Get top crypto pairs as symbols
+        limit = int(request.args.get('limit', 50))
+        symbols = market_service.get_top_crypto_pairs(limit)
         
         return jsonify({
             'timestamp': datetime.utcnow().isoformat(),
@@ -148,20 +151,52 @@ def get_tickers():
         JSON response with market ticker data
     """
     try:
-        from backend.database.unified_data_access import UnifiedDataAccess
-        da = UnifiedDataAccess()
+        # Import market data service from original implementation
+        import sys
+        import os
+        root_path = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+        if root_path not in sys.path:
+            sys.path.append(root_path)
+        
+        from api.market_data_service import market_service
         
         # Parse query parameters
         symbols_param = request.args.get('symbols')
-        symbols = symbols_param.split(',') if symbols_param else None
+        if symbols_param:
+            symbols = [s.strip() for s in symbols_param.split(',')]
+            # Format symbols properly
+            formatted_symbols = []
+            for symbol in symbols:
+                if '/USDT' not in symbol.upper():
+                    formatted_symbols.append(f"{symbol.upper()}/USDT")
+                else:
+                    formatted_symbols.append(symbol.upper())
+            
+            tickers = market_service.fetch_multiple_tickers(formatted_symbols)
+        else:
+            # Get default top pairs
+            top_pairs = market_service.get_top_crypto_pairs(20)
+            tickers = market_service.fetch_multiple_tickers(top_pairs)
         
-        tickers = da.get_market_tickers(symbols)
+        # Format tickers for response
+        ticker_data = []
+        for symbol, ticker in tickers.items():
+            ticker_data.append({
+                'symbol': ticker.symbol,
+                'price': ticker.price,
+                'change_24h': ticker.change_24h,
+                'change_percent_24h': ticker.change_percent_24h,
+                'volume_24h': ticker.volume_24h,
+                'high_24h': ticker.high_24h,
+                'low_24h': ticker.low_24h,
+                'timestamp': ticker.timestamp.isoformat()
+            })
         
         return jsonify({
             'timestamp': datetime.utcnow().isoformat(),
             'epic': 'Epic 7 Sprint 1',
-            'tickers': tickers,
-            'count': len(tickers),
+            'tickers': ticker_data,
+            'count': len(ticker_data),
             'status': 'success'
         })
     
@@ -194,61 +229,57 @@ def get_ohlc_data(symbol):
         JSON response with OHLC data
     """
     try:
-        from backend.database.unified_data_access import UnifiedDataAccess
-        da = UnifiedDataAccess()
+        # Import market data service from original implementation
+        import sys
+        import os
+        root_path = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+        if root_path not in sys.path:
+            sys.path.append(root_path)
+        
+        from api.market_data_service import market_service
         
         # Parse query parameters
         timeframe = request.args.get('timeframe', '1h')
         limit = int(request.args.get('limit', 100))
-        start_date = request.args.get('start_date')
-        end_date = request.args.get('end_date')
+        days = request.args.get('days', 30, type=int)
         
-        # Parse dates if provided
-        start_datetime = None
-        end_datetime = None
-        
-        if start_date:
-            start_datetime = datetime.fromisoformat(start_date.replace('Z', '+00:00'))
-        if end_date:
-            end_datetime = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-        
-        # Get market data
-        df = da.get_market_data(
-            symbol=symbol.upper(),
-            timeframe=timeframe,
-            limit=limit,
-            start_date=start_datetime,
-            end_date=end_datetime
-        )
-        
-        # Convert to JSON-serializable format
-        if df.empty:
+        # Validate timeframe
+        valid_timeframes = ['1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w']
+        if timeframe not in valid_timeframes:
             return jsonify({
-                'timestamp': datetime.utcnow().isoformat(),
-                'epic': 'Epic 7 Sprint 1',
-                'symbol': symbol.upper(),
-                'timeframe': timeframe,
-                'data': [],
-                'count': 0,
-                'message': 'No data found for specified parameters',
-                'status': 'success'
+                'error': f'Invalid timeframe. Valid options: {valid_timeframes}',
+                'symbol': symbol,
+                'status': 'error'
+            }), 400
+        
+        # Format symbol properly
+        if '/USDT' not in symbol.upper():
+            symbol = f"{symbol.upper()}/USDT"
+        else:
+            symbol = symbol.upper()
+        
+        # Fetch historical data
+        historical_data = market_service.fetch_historical_data(symbol, timeframe, days)
+        
+        # Convert to API response format
+        data = []
+        for candle in historical_data[:limit]:  # Apply limit
+            data.append({
+                'timestamp': candle.timestamp.isoformat(),
+                'open': candle.open,
+                'high': candle.high,
+                'low': candle.low,
+                'close': candle.close,
+                'volume': candle.volume
             })
-        
-        # Convert DataFrame to records
-        records = df.to_dict('records')
-        
-        # Convert timestamps to ISO format
-        for record in records:
-            if 'timestamp_utc' in record:
-                record['timestamp_utc'] = record['timestamp_utc'].isoformat()
         
         return jsonify({
             'timestamp': datetime.utcnow().isoformat(),
             'epic': 'Epic 7 Sprint 1',
-            'symbol': symbol.upper(),
+            'symbol': symbol,
             'timeframe': timeframe,
-            'data': records,
-            'count': len(records),
+            'data': data,
+            'count': len(data),
             'status': 'success'
         })
     
@@ -273,28 +304,57 @@ def get_futures_pairs():
         JSON response with futures trading pairs
     """
     try:
-        from backend.database.unified_data_access import UnifiedDataAccess
-        da = UnifiedDataAccess()
+        # Import futures provider from original implementation
+        import sys
+        import os
+        root_path = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+        if root_path not in sys.path:
+            sys.path.append(root_path)
         
-        # Get available symbols (futures pairs)
-        symbols = da.get_available_symbols()
+        from research.data.providers.binance_futures_provider import BinanceFuturesProvider
         
-        # Format as futures pairs (add USDT suffix if needed)
-        futures_pairs = []
-        for symbol in symbols:
-            if symbol.endswith('USDT'):
-                futures_pairs.append({
-                    'symbol': symbol,
-                    'baseAsset': symbol[:-4],  # Remove USDT
-                    'quoteAsset': 'USDT',
-                    'status': 'TRADING'  # Placeholder
-                })
+        # Initialize futures provider
+        futures_provider = BinanceFuturesProvider()
+        
+        # Parse query parameters
+        limit = request.args.get('limit', type=int)
+        search_query = request.args.get('search', '').strip()
+        sort_by = request.args.get('sort', 'volume')
+        force_refresh = request.args.get('refresh', '').lower() == 'true'
+        
+        # Get pairs from provider
+        pairs = futures_provider.get_usdt_perpetual_pairs(force_refresh=force_refresh)
+        
+        if not pairs:
+            return jsonify({
+                'timestamp': datetime.utcnow().isoformat(),
+                'epic': 'Epic 7 Sprint 1',
+                'error': 'Failed to fetch futures pairs',
+                'futures_pairs': [],
+                'count': 0,
+                'status': 'error'
+            }), 500
+        
+        # Apply search filter
+        if search_query:
+            pairs = futures_provider.search_pairs(search_query)
+        
+        # Apply sorting
+        if sort_by == 'price':
+            pairs.sort(key=lambda x: x.get('price', 0), reverse=True)
+        elif sort_by == 'change':
+            pairs.sort(key=lambda x: abs(x.get('change24h', 0)), reverse=True)
+        # Default is volume (already sorted in provider)
+        
+        # Apply limit
+        if limit and limit > 0:
+            pairs = pairs[:limit]
         
         return jsonify({
             'timestamp': datetime.utcnow().isoformat(),
             'epic': 'Epic 7 Sprint 1',
-            'futures_pairs': futures_pairs,
-            'count': len(futures_pairs),
+            'futures_pairs': pairs,
+            'count': len(pairs),
             'status': 'success'
         })
     
@@ -302,6 +362,164 @@ def get_futures_pairs():
         current_app.logger.error(f"Get futures pairs failed: {e}")
         return jsonify({
             'error': 'Failed to fetch futures pairs',
+            'message': str(e),
+            'status': 'error'
+        }), 500
+
+
+@market_bp.route('/ticker/<symbol>')
+def get_ticker(symbol):
+    """
+    Get live ticker data for specific symbol
+    
+    Path Parameters:
+        symbol: Trading pair symbol (e.g., BTC, BTCUSDT)
+    
+    Returns:
+        JSON response with ticker data
+    """
+    try:
+        # Import market data service from original implementation
+        import sys
+        import os
+        root_path = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+        if root_path not in sys.path:
+            sys.path.append(root_path)
+        
+        from api.market_data_service import market_service
+        
+        # Format symbol properly
+        if '/USDT' not in symbol.upper():
+            formatted_symbol = f"{symbol.upper()}/USDT"
+        else:
+            formatted_symbol = symbol.upper()
+        
+        ticker = market_service.fetch_live_ticker(formatted_symbol)
+        
+        if ticker:
+            return jsonify({
+                'timestamp': datetime.utcnow().isoformat(),
+                'epic': 'Epic 7 Sprint 1',
+                'ticker': {
+                    'symbol': ticker.symbol,
+                    'price': ticker.price,
+                    'change_24h': ticker.change_24h,
+                    'change_percent_24h': ticker.change_percent_24h,
+                    'volume_24h': ticker.volume_24h,
+                    'high_24h': ticker.high_24h,
+                    'low_24h': ticker.low_24h,
+                    'timestamp': ticker.timestamp.isoformat()
+                },
+                'status': 'success'
+            })
+        else:
+            return jsonify({
+                'error': f'Ticker data not available for {symbol}',
+                'symbol': symbol,
+                'status': 'error'
+            }), 404
+    
+    except Exception as e:
+        current_app.logger.error(f"Get ticker {symbol} failed: {e}")
+        return jsonify({
+            'error': 'Failed to fetch ticker',
+            'symbol': symbol,
+            'message': str(e),
+            'status': 'error'
+        }), 500
+
+
+@market_bp.route('/futures/search')
+def search_futures():
+    """
+    Search futures symbols by query
+    
+    Query Parameters:
+        q: Search query string
+        
+    Returns:
+        JSON response with matching futures symbols
+    """
+    try:
+        # Import futures provider from original implementation
+        import sys
+        import os
+        root_path = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+        if root_path not in sys.path:
+            sys.path.append(root_path)
+        
+        from research.data.providers.binance_futures_provider import BinanceFuturesProvider
+        
+        query = request.args.get('q', '').strip()
+        
+        if not query:
+            return jsonify({
+                'error': 'Search query is required',
+                'status': 'error'
+            }), 400
+        
+        futures_provider = BinanceFuturesProvider()
+        pairs = futures_provider.search_pairs(query)
+        
+        return jsonify({
+            'timestamp': datetime.utcnow().isoformat(),
+            'epic': 'Epic 7 Sprint 1',
+            'futures_search': pairs,
+            'count': len(pairs),
+            'query': query,
+            'status': 'success'
+        })
+    
+    except Exception as e:
+        current_app.logger.error(f"Futures search failed: {e}")
+        return jsonify({
+            'error': 'Failed to search futures',
+            'message': str(e),
+            'status': 'error'
+        }), 500
+
+
+@market_bp.route('/status')
+def get_market_status():
+    """
+    Get market data service status and connectivity
+    
+    Returns:
+        JSON response with service status
+    """
+    try:
+        # Import market data service from original implementation
+        import sys
+        import os
+        root_path = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+        if root_path not in sys.path:
+            sys.path.append(root_path)
+        
+        from api.market_data_service import market_service
+        
+        # Test connection by fetching BTC ticker
+        btc_ticker = market_service.fetch_live_ticker('BTC/USDT')
+        
+        status = {
+            'service_status': 'operational' if btc_ticker else 'degraded',
+            'binance_connection': 'connected' if btc_ticker else 'disconnected',
+            'cache_size': len(market_service.price_cache),
+            'last_update': btc_ticker.timestamp.isoformat() if btc_ticker else None,
+            'supported_timeframes': ['1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w'],
+            'rate_limit_status': 'normal'
+        }
+        
+        return jsonify({
+            'timestamp': datetime.utcnow().isoformat(),
+            'epic': 'Epic 7 Sprint 1',
+            'market_status': status,
+            'status': 'success'
+        })
+    
+    except Exception as e:
+        current_app.logger.error(f"Market status check failed: {e}")
+        return jsonify({
+            'error': 'Failed to check market status',
             'message': str(e),
             'status': 'error'
         }), 500

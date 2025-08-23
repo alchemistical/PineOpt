@@ -10,6 +10,11 @@ from datetime import datetime
 import psutil
 import os
 
+try:
+    from ..utils.response_formatter import health_response, success_response, error_response
+except ImportError:
+    from utils.response_formatter import health_response, success_response, error_response
+
 # Create blueprint
 health_bp = Blueprint('health', __name__, url_prefix='/api/v1/health')
 
@@ -22,12 +27,11 @@ def basic_health():
     Returns:
         JSON response with basic system status
     """
-    return jsonify({
-        'status': 'healthy',
-        'timestamp': datetime.utcnow().isoformat(),
-        'version': current_app.config.get('API_VERSION', '1.0'),
-        'epic': 'Epic 7 - API Rationalization'
-    })
+    return health_response(
+        service_name='PineOpt API',
+        status='healthy',
+        version=current_app.config.get('API_VERSION', '1.0')
+    )
 
 
 @health_bp.route('/detailed')
@@ -47,11 +51,7 @@ def detailed_health():
         # Database health check
         database_status = check_database_health()
         
-        return jsonify({
-            'status': 'healthy',
-            'timestamp': datetime.utcnow().isoformat(),
-            'version': current_app.config.get('API_VERSION', '1.0'),
-            'epic': 'Epic 7 - API Architecture Rationalization',
+        health_checks = {
             'system': {
                 'cpu_percent': cpu_percent,
                 'memory': {
@@ -71,14 +71,22 @@ def detailed_health():
                 'debug': current_app.debug,
                 'testing': current_app.testing
             }
-        })
+        }
+        
+        return health_response(
+            service_name='PineOpt API',
+            status='healthy',
+            checks=health_checks,
+            version=current_app.config.get('API_VERSION', '1.0')
+        )
     except Exception as e:
         current_app.logger.error(f"Detailed health check failed: {e}")
-        return jsonify({
-            'status': 'unhealthy',
-            'timestamp': datetime.utcnow().isoformat(),
-            'error': str(e)
-        }), 500
+        return error_response(
+            'health_check_failed',
+            'Detailed health check failed',
+            500,
+            details=str(e)
+        )
 
 
 @health_bp.route('/metrics')
@@ -92,18 +100,18 @@ def metrics():
     # TODO: Implement proper metrics collection in Sprint 3
     # For now, return basic placeholder metrics
     
-    return jsonify({
-        'timestamp': datetime.utcnow().isoformat(),
-        'epic': 'Epic 7 - API Architecture Rationalization',
-        'metrics': {
-            'requests_total': 0,  # Placeholder - implement in Sprint 2
-            'requests_per_second': 0,  # Placeholder
-            'average_response_time': 0,  # Placeholder
-            'error_rate': 0,  # Placeholder
-            'active_connections': 0  # Placeholder
-        },
-        'status': 'metrics_collection_not_yet_implemented'
-    })
+    metrics_data = {
+        'requests_total': 0,  # Placeholder - implement in Sprint 3
+        'requests_per_second': 0,  # Placeholder
+        'average_response_time': 0,  # Placeholder
+        'error_rate': 0,  # Placeholder
+        'active_connections': 0  # Placeholder
+    }
+    
+    return success_response(
+        data=metrics_data,
+        message='Metrics collection will be implemented in Sprint 3'
+    )
 
 
 def check_database_health():
@@ -115,9 +123,8 @@ def check_database_health():
     """
     try:
         # Import database access here to avoid circular imports
-        from backend.database.unified_data_access import UnifiedDataAccess
-        
-        da = UnifiedDataAccess()
+        from .db_helper import get_database_access
+        da = get_database_access()
         stats = da.get_database_stats()
         
         return {

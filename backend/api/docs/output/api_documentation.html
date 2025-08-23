@@ -1,0 +1,1179 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PineOpt API - Epic 7: API Architecture Rationalization</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.5em;
+        }
+        .header .version {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .section {
+            background: white;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .section h2 {
+            color: #2d3748;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .endpoint {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8em;
+            color: white;
+            margin-right: 10px;
+        }
+        .method.get { background-color: #28a745; }
+        .method.post { background-color: #007bff; }
+        .method.put { background-color: #ffc107; color: #333; }
+        .method.delete { background-color: #dc3545; }
+        .path {
+            font-family: Monaco, monospace;
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+        .description {
+            margin: 10px 0;
+            color: #6c757d;
+        }
+        .tag {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin: 2px;
+        }
+        .servers {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .server {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .server h4 {
+            margin: 0 0 5px 0;
+            color: #007bff;
+        }
+        .server .url {
+            font-family: Monaco, monospace;
+            font-size: 0.9em;
+            color: #495057;
+        }
+        .toc {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #495057;
+        }
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .toc ul ul {
+            padding-left: 20px;
+            list-style: disc;
+        }
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .generated-info {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PineOpt API - Epic 7: API Architecture Rationalization</h1>
+        <div class="version">Version 1.0.0</div>
+        <p style="margin: 10px 0 0 0;">Epic 7: API Architecture Rationalization - Complete API reference</p>
+    </div>
+
+    <div class="toc">
+        <h3>📋 Table of Contents</h3>
+        <ul>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#servers">Servers</a></li>
+            <li><a href="#authentication">Authentication</a></li>
+            <li><a href="#rate-limiting">Rate Limiting</a></li>
+            <li><a href="#error-handling">Error Handling</a></li>
+            <li><a href="#endpoints">API Endpoints</a>
+                <ul>
+                    
+                    <li><a href="#health">Health</a></li>
+                    
+                    <li><a href="#market-data">Market Data</a></li>
+                    
+                    <li><a href="#strategies">Strategies</a></li>
+                    
+                    <li><a href="#conversions">Conversions</a></li>
+                    
+                    <li><a href="#backtests">Backtests</a></li>
+                    
+                    <li><a href="#middleware">Middleware</a></li>
+                    
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="section" id="overview">
+        <h2>🚀 Overview</h2>
+        <div><br># PineOpt API Documentation<br><br>**Epic 7: API Architecture Rationalization** - Complete API reference for the consolidated PineOpt trading strategy platform.<br><br>## Features<br>- **Consolidated Architecture**: 5 unified blueprints replacing 13+ scattered route files<br>- **Production Middleware**: Rate limiting, error handling, logging, and CORS<br>- **Standardized Responses**: Consistent JSON format across all endpoints<br>- **Health Monitoring**: Comprehensive service health checks<br>- **Strategy Management**: Pine Script conversion and backtesting<br><br>## Architecture Overview<br>This API follows a microservice-inspired blueprint architecture with production-ready middleware:<br>- **Health Services**: System monitoring and status<br>- **Market Data Services**: Real-time and historical market data<br>- **Strategy Services**: Strategy CRUD operations and validation<br>- **Conversion Services**: Pine Script to Python conversion<br>- **Backtesting Services**: Strategy performance analysis<br><br>## Authentication<br>Currently in development mode. Production authentication will be added in future sprints.<br><br>## Rate Limiting<br>- **Global Limits**: 100 requests/minute, 2000 requests/hour per client<br>- **Headers**: Rate limit info included in response headers<br>- **Bypass**: Health check endpoints excluded from rate limiting<br><br>## Error Handling<br>All errors return standardized JSON format with:<br>- **Timestamp**: ISO 8601 timestamp<br>- **Error Type**: Categorized error type<br>- **Request Info**: Method, path, and endpoint context<br>- **Epic Context**: Epic 7 project identification<br>            </div>
+    </div>
+
+    <div class="section" id="servers">
+        <h2>🌐 Servers</h2>
+        <div class="servers">
+            
+            <div class="server">
+                <h4>Development Server</h4>
+                <div class="url">http://localhost:5007</div>
+            </div>
+            
+            <div class="server">
+                <h4>Production Server</h4>
+                <div class="url">https://api.pineopt.dev</div>
+            </div>
+            
+            <div class="server">
+                <h4>Staging Server</h4>
+                <div class="url">https://staging-api.pineopt.dev</div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="section" id="authentication">
+        <h2>🔐 Authentication</h2>
+        <p>Currently in development mode. Production authentication will be added in future sprints.</p>
+    </div>
+
+    <div class="section" id="rate-limiting">
+        <h2>⏱️ Rate Limiting</h2>
+        <ul>
+            <li><strong>Global Limits:</strong> 100 requests/minute, 2000 requests/hour per client</li>
+            <li><strong>Headers:</strong> Rate limit info included in response headers</li>
+            <li><strong>Bypass:</strong> Health check endpoints excluded from rate limiting</li>
+        </ul>
+    </div>
+
+    <div class="section" id="error-handling">
+        <h2>❌ Error Handling</h2>
+        <p>All errors return standardized JSON format with:</p>
+        <ul>
+            <li><strong>Timestamp:</strong> ISO 8601 timestamp</li>
+            <li><strong>Error Type:</strong> Categorized error type</li>
+            <li><strong>Request Info:</strong> Method, path, and endpoint context</li>
+            <li><strong>Epic Context:</strong> Epic 7 project identification</li>
+        </ul>
+    </div>
+
+    <div class="section" id="endpoints">
+        <h2>📡 API Endpoints</h2>
+        
+        
+        <div id="health">
+            <h3>Health</h3>
+            <p class="description">System health monitoring and status endpoints</p>
+            
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/health/</span>
+                        </div>
+                        <h4>Basic health check</h4>
+                        <p class="description">Returns basic service health status</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Health</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/health/detailed</span>
+                        </div>
+                        <h4>Detailed health check</h4>
+                        <p class="description">Returns detailed system health metrics including CPU, memory, and database status</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Health</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/health/metrics</span>
+                        </div>
+                        <h4>Performance metrics</h4>
+                        <p class="description">Returns API performance metrics (placeholder - will be implemented in Sprint 3)</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Health</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        </div>
+        
+        <div id="market-data">
+            <h3>Market Data</h3>
+            <p class="description">Real-time and historical market data services</p>
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/market/</span>
+                        </div>
+                        <h4>Market data API information</h4>
+                        <p class="description">Returns available market data endpoints and capabilities</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Market Data</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        </div>
+        
+        <div id="strategies">
+            <h3>Strategies</h3>
+            <p class="description">Strategy management, validation, and CRUD operations</p>
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/strategies/</span>
+                        </div>
+                        <h4>Strategy management API information</h4>
+                        <p class="description">Returns available strategy management endpoints</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Strategies</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/strategies/list</span>
+                        </div>
+                        <h4>List all strategies</h4>
+                        <p class="description">Returns paginated list of all strategies</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Strategies</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/strategies/{id}</span>
+                        </div>
+                        <h4>Get strategy by ID</h4>
+                        <p class="description">Returns detailed strategy information</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Strategies</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method put">PUT</span>
+                            <span class="path">/api/v1/strategies/{id}</span>
+                        </div>
+                        <h4>Update strategy</h4>
+                        <p class="description">Updates an existing strategy</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Strategies</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method delete">DELETE</span>
+                            <span class="path">/api/v1/strategies/{id}</span>
+                        </div>
+                        <h4>Delete strategy</h4>
+                        <p class="description">Deletes a strategy by ID</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Strategies</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        </div>
+        
+        <div id="conversions">
+            <h3>Conversions</h3>
+            <p class="description">Pine Script to Python conversion services</p>
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/conversions/</span>
+                        </div>
+                        <h4>Conversion API information</h4>
+                        <p class="description">Returns available Pine Script conversion endpoints and capabilities</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Conversions</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/conversions/health</span>
+                        </div>
+                        <h4>Conversion service health</h4>
+                        <p class="description">Returns health status of conversion services</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Conversions</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method post">POST</span>
+                            <span class="path">/api/v1/conversions/analyze</span>
+                        </div>
+                        <h4>Analyze Pine Script strategy</h4>
+                        <p class="description">Analyzes Pine Script code and provides insights</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Conversions</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method post">POST</span>
+                            <span class="path">/api/v1/conversions/convert/working</span>
+                        </div>
+                        <h4>Convert Pine Script (working converter)</h4>
+                        <p class="description">Converts Pine Script to Python using the working converter</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Conversions</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/conversions/indicators</span>
+                        </div>
+                        <h4>List available indicators</h4>
+                        <p class="description">Returns list of supported technical indicators for conversion</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Conversions</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        </div>
+        
+        <div id="backtests">
+            <h3>Backtests</h3>
+            <p class="description">Strategy backtesting and performance analysis</p>
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/backtests/</span>
+                        </div>
+                        <h4>Backtest API information</h4>
+                        <p class="description">Returns available backtesting endpoints and capabilities</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Backtests</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/backtests/health</span>
+                        </div>
+                        <h4>Backtest service health</h4>
+                        <p class="description">Returns health status of backtesting services</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Backtests</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method post">POST</span>
+                            <span class="path">/api/v1/backtests/run</span>
+                        </div>
+                        <h4>Run strategy backtest</h4>
+                        <p class="description">Executes backtest for a given strategy</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Backtests</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/backtests/pairs/available</span>
+                        </div>
+                        <h4>List available trading pairs</h4>
+                        <p class="description">Returns list of available trading pairs for backtesting</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Backtests</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/backtests/history</span>
+                        </div>
+                        <h4>Backtest history</h4>
+                        <p class="description">Returns history of previous backtests</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Backtests</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+        </div>
+        
+        <div id="middleware">
+            <h3>Middleware</h3>
+            <p class="description">Rate limiting, logging, and CORS configuration endpoints</p>
+            
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+                    
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/rate-limit/status</span>
+                        </div>
+                        <h4>Rate limit status</h4>
+                        <p class="description">Returns current rate limiting status for the client</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Middleware</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/cors/config</span>
+                        </div>
+                        <h4>CORS configuration</h4>
+                        <p class="description">Returns current CORS configuration</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Middleware</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/cors/test</span>
+                        </div>
+                        <h4>CORS functionality test</h4>
+                        <p class="description">Test endpoint for CORS functionality validation</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Middleware</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+                
+                    
+                    <div class="endpoint">
+                        <div>
+                            <span class="method get">GET</span>
+                            <span class="path">/api/v1/logs/config</span>
+                        </div>
+                        <h4>Logging configuration</h4>
+                        <p class="description">Returns current logging middleware configuration</p>
+                        
+                        <div>
+                            
+                            <span class="tag">Middleware</span>
+                            
+                        </div>
+                        
+                    </div>
+                    
+                
+            
+        </div>
+        
+    </div>
+
+    <div class="generated-info">
+        Generated on 2025-08-23 15:21:42 by Epic 7 Sprint 3 Documentation Generator
+    </div>
+</body>
+</html>
+    

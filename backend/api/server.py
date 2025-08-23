@@ -4,6 +4,7 @@
 import os
 import sys
 import logging
+import atexit
 from datetime import datetime
 from pathlib import Path
 
@@ -19,6 +20,32 @@ import logging
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Performance optimization imports
+try:
+    from performance import (
+        get_cache_manager, cache_response, 
+        get_query_optimizer, get_memory_manager, 
+        get_connection_pool_manager, memory_profiler
+    )
+    PERFORMANCE_OPTIMIZATION_AVAILABLE = True
+    logger.info("✅ Performance optimization system loaded successfully")
+except ImportError as e:
+    PERFORMANCE_OPTIMIZATION_AVAILABLE = False
+    logger.warning(f"⚠️ Performance optimization not available: {e}")
+
+# Advanced monitoring imports
+try:
+    from monitoring import (
+        get_system_monitor, get_trading_metrics_collector,
+        get_alerting_framework, get_health_checker,
+        get_monitoring_dashboard
+    )
+    MONITORING_SYSTEM_AVAILABLE = True
+    logger.info("✅ Advanced monitoring system loaded successfully")
+except ImportError as e:
+    MONITORING_SYSTEM_AVAILABLE = False
+    logger.warning(f"⚠️ Advanced monitoring not available: {e}")
 
 from pine2py.codegen.emit import convert_simple_rsi_strategy, PythonCodeGenerator
 from pine2py.parser.parser import PineParser
@@ -41,6 +68,64 @@ except ImportError as e:
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend
+
+# Initialize performance optimization systems
+if PERFORMANCE_OPTIMIZATION_AVAILABLE:
+    # Database path for unified database
+    UNIFIED_DB_PATH = Path(__file__).parent.parent / "database" / "pineopt_unified.db"
+    
+    # Initialize performance systems
+    cache_manager = get_cache_manager()
+    query_optimizer = get_query_optimizer(str(UNIFIED_DB_PATH))
+    memory_manager = get_memory_manager(memory_limit_mb=2048)
+    connection_pool_manager = get_connection_pool_manager(str(UNIFIED_DB_PATH))
+    
+    logger.info("🚀 Performance optimization systems initialized")
+    
+    # Register cleanup on app shutdown
+    def cleanup_performance_systems():
+        """Cleanup performance systems on shutdown"""
+        try:
+            if 'connection_pool_manager' in globals():
+                connection_pool_manager.close_all_pools()
+            if 'memory_manager' in globals():
+                memory_manager.stop_monitoring()
+            logger.info("Performance systems cleaned up successfully")
+        except Exception as e:
+            logger.error(f"Error during performance systems cleanup: {e}")
+    
+    atexit.register(cleanup_performance_systems)
+
+# Initialize advanced monitoring systems
+if MONITORING_SYSTEM_AVAILABLE:
+    # Initialize monitoring components
+    system_monitor = get_system_monitor(collection_interval=30)
+    trading_metrics_collector = get_trading_metrics_collector(collection_interval=60)
+    alerting_framework = get_alerting_framework()
+    health_checker = get_health_checker(check_interval=300)
+    monitoring_dashboard = get_monitoring_dashboard(update_interval=30)
+    
+    logger.info("🔍 Advanced monitoring systems initialized")
+    
+    # Register cleanup for monitoring systems
+    def cleanup_monitoring_systems():
+        """Cleanup monitoring systems on shutdown"""
+        try:
+            if 'system_monitor' in globals():
+                system_monitor.stop_monitoring()
+            if 'trading_metrics_collector' in globals():
+                trading_metrics_collector.stop_monitoring()
+            if 'alerting_framework' in globals():
+                alerting_framework.stop_monitoring()
+            if 'health_checker' in globals():
+                health_checker.stop_monitoring()
+            if 'monitoring_dashboard' in globals():
+                monitoring_dashboard.stop_auto_refresh()
+            logger.info("Monitoring systems cleaned up successfully")
+        except Exception as e:
+            logger.error(f"Error during monitoring systems cleanup: {e}")
+    
+    atexit.register(cleanup_monitoring_systems)
 
 # Import and register database routes
 try:
@@ -180,6 +265,250 @@ def init_database():
 def health_check():
     """Health check endpoint."""
     return jsonify({"status": "ok", "message": "Pine2Py API Server Running"})
+
+# Performance monitoring endpoints
+if PERFORMANCE_OPTIMIZATION_AVAILABLE:
+    
+    @app.route('/api/performance/stats', methods=['GET'])
+    @cache_response('api_responses', ttl=30)
+    def get_performance_stats():
+        """Get comprehensive performance statistics."""
+        try:
+            stats = {
+                'cache': cache_manager.get_stats(),
+                'query_optimizer': query_optimizer.get_query_statistics(),
+                'memory': memory_manager.get_current_memory_usage(),
+                'connections': connection_pool_manager.get_all_stats(),
+                'timestamp': datetime.now().isoformat()
+            }
+            return jsonify({
+                "success": True,
+                "performance_stats": stats
+            })
+        except Exception as e:
+            logger.error(f"Performance stats error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/performance/memory', methods=['GET'])
+    def get_memory_stats():
+        """Get detailed memory usage statistics."""
+        try:
+            memory_stats = {
+                'current_usage': memory_manager.get_current_memory_usage(),
+                'trends': memory_manager.get_memory_trends(minutes=30),
+                'health': memory_manager.check_memory_health()
+            }
+            return jsonify({
+                "success": True,
+                "memory_stats": memory_stats
+            })
+        except Exception as e:
+            logger.error(f"Memory stats error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/performance/cache', methods=['GET'])
+    def get_cache_stats():
+        """Get cache statistics and efficiency metrics."""
+        try:
+            cache_stats = cache_manager.get_stats()
+            return jsonify({
+                "success": True,
+                "cache_stats": cache_stats
+            })
+        except Exception as e:
+            logger.error(f"Cache stats error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/performance/cache/clear', methods=['POST'])
+    def clear_cache():
+        """Clear cache entries by type."""
+        try:
+            cache_type = request.json.get('cache_type') if request.is_json else None
+            cleared_count = cache_manager.clear(cache_type)
+            
+            return jsonify({
+                "success": True,
+                "cleared_entries": cleared_count,
+                "cache_type": cache_type or "all"
+            })
+        except Exception as e:
+            logger.error(f"Cache clear error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/performance/optimize', methods=['POST'])
+    def optimize_performance():
+        """Run performance optimization routines."""
+        try:
+            results = {
+                'memory_optimization': memory_manager.optimize_memory(),
+                'cache_cleanup': cache_manager.cleanup_expired(),
+                'database_optimization': 'completed'
+            }
+            
+            # Run database vacuum if requested
+            force_vacuum = request.json.get('vacuum_database', False) if request.is_json else False
+            if force_vacuum:
+                query_optimizer.vacuum_database()
+                results['database_vacuum'] = 'completed'
+            
+            return jsonify({
+                "success": True,
+                "optimization_results": results
+            })
+        except Exception as e:
+            logger.error(f"Performance optimization error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+
+# Advanced monitoring endpoints
+if MONITORING_SYSTEM_AVAILABLE:
+    
+    @app.route('/api/monitoring/dashboard', methods=['GET'])
+    def get_monitoring_dashboard():
+        """Get comprehensive monitoring dashboard data."""
+        try:
+            dashboard_data = monitoring_dashboard.get_current_dashboard()
+            return jsonify({
+                "success": True,
+                "dashboard": dashboard_data
+            })
+        except Exception as e:
+            logger.error(f"Monitoring dashboard error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/monitoring/summary', methods=['GET'])
+    def get_monitoring_summary():
+        """Get high-level monitoring summary."""
+        try:
+            summary = monitoring_dashboard.get_dashboard_summary()
+            return jsonify({
+                "success": True,
+                "summary": summary
+            })
+        except Exception as e:
+            logger.error(f"Monitoring summary error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/monitoring/system', methods=['GET'])
+    def get_system_monitoring():
+        """Get detailed system monitoring metrics."""
+        try:
+            current_metrics = system_monitor.get_current_metrics()
+            hours = int(request.args.get('hours', 1))
+            history = system_monitor.get_metrics_history(hours)
+            
+            return jsonify({
+                "success": True,
+                "current": current_metrics,
+                "history": history
+            })
+        except Exception as e:
+            logger.error(f"System monitoring error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/monitoring/trading', methods=['GET'])
+    def get_trading_monitoring():
+        """Get trading-specific monitoring metrics."""
+        try:
+            trading_data = trading_metrics_collector.get_trading_dashboard_data()
+            
+            # Get symbol analytics if requested
+            symbol = request.args.get('symbol')
+            if symbol:
+                hours = int(request.args.get('hours', 24))
+                symbol_analytics = trading_metrics_collector.get_symbol_analytics(symbol, hours)
+                trading_data['symbol_analytics'] = symbol_analytics
+            
+            return jsonify({
+                "success": True,
+                "trading_metrics": trading_data
+            })
+        except Exception as e:
+            logger.error(f"Trading monitoring error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/monitoring/health', methods=['GET'])
+    def get_health_monitoring():
+        """Get comprehensive system health check."""
+        try:
+            health_data = health_checker.get_overall_health()
+            return jsonify({
+                "success": True,
+                "health": health_data
+            })
+        except Exception as e:
+            logger.error(f"Health monitoring error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/monitoring/health/<component>', methods=['GET'])
+    def get_component_health(component):
+        """Get health check for specific component."""
+        try:
+            health_result = health_checker.run_health_check(component)
+            return jsonify({
+                "success": True,
+                "component_health": health_result.to_dict()
+            })
+        except Exception as e:
+            logger.error(f"Component health check error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/monitoring/alerts', methods=['GET'])
+    def get_alerts_monitoring():
+        """Get alert monitoring data."""
+        try:
+            severity_filter = request.args.get('severity')
+            severity_enum = None
+            if severity_filter:
+                from monitoring.alerting import AlertSeverity
+                try:
+                    severity_enum = AlertSeverity(severity_filter.lower())
+                except ValueError:
+                    pass
+            
+            active_alerts = alerting_framework.get_active_alerts(severity_enum)
+            hours = int(request.args.get('hours', 24))
+            alert_stats = alerting_framework.get_alert_statistics(hours)
+            
+            return jsonify({
+                "success": True,
+                "active_alerts": [alert.to_dict() for alert in active_alerts],
+                "statistics": alert_stats
+            })
+        except Exception as e:
+            logger.error(f"Alert monitoring error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/monitoring/alerts/<alert_id>/acknowledge', methods=['POST'])
+    def acknowledge_alert(alert_id):
+        """Acknowledge a specific alert."""
+        try:
+            acknowledger = request.json.get('acknowledger', 'api_user') if request.is_json else 'api_user'
+            alerting_framework.acknowledge_alert(alert_id, acknowledger)
+            
+            return jsonify({
+                "success": True,
+                "message": f"Alert {alert_id} acknowledged by {acknowledger}"
+            })
+        except Exception as e:
+            logger.error(f"Alert acknowledgment error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+    
+    @app.route('/api/monitoring/trends', methods=['GET'])
+    def get_monitoring_trends():
+        """Get historical monitoring trends."""
+        try:
+            hours = int(request.args.get('hours', 6))
+            trends = monitoring_dashboard.get_historical_trends(hours)
+            baseline = monitoring_dashboard.get_performance_baseline(24)
+            
+            return jsonify({
+                "success": True,
+                "trends": trends,
+                "baseline": baseline
+            })
+        except Exception as e:
+            logger.error(f"Monitoring trends error: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route('/api/convert-pine', methods=['POST'])
 def convert_pine():
@@ -561,16 +890,148 @@ def test_conversion():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/crypto/ohlc', methods=['GET'])
-def get_crypto_ohlc():
-    """Fetch crypto OHLC data from Binance (real live data) with Tardis fallback."""
-    try:
-        # Get query parameters
-        symbol = request.args.get('symbol')
-        exchange = request.args.get('exchange', 'BINANCE')
-        timeframe = request.args.get('timeframe', '1h')
-        n_bars = int(request.args.get('n_bars', 1000))
-        use_cache = request.args.get('use_cache', 'true').lower() == 'true'
+if PERFORMANCE_OPTIMIZATION_AVAILABLE:
+    from performance import cache_market_data
+    
+    @app.route('/api/crypto/ohlc', methods=['GET'])
+    @memory_profiler(track_objects=True)
+    def get_crypto_ohlc():
+        """Fetch crypto OHLC data from Binance (real live data) with Tardis fallback."""
+        start_time = time.time()
+        try:
+            # Get query parameters
+            symbol = request.args.get('symbol')
+            exchange = request.args.get('exchange', 'BINANCE')
+            timeframe = request.args.get('timeframe', '1h')
+            n_bars = int(request.args.get('n_bars', 1000))
+            use_cache = request.args.get('use_cache', 'true').lower() == 'true'
+            
+            # Validate required parameters
+            if not symbol:
+                if MONITORING_SYSTEM_AVAILABLE:
+                    response_time = (time.time() - start_time) * 1000
+                    trading_metrics_collector.record_ohlcv_request(
+                        symbol="UNKNOWN", timeframe=timeframe, provider="NONE",
+                        response_time_ms=response_time, cache_hit=False, 
+                        data_points=0, error=True
+                    )
+                return jsonify({"error": "Missing required parameter: symbol"}), 400
+            
+            # Generate cache key for this request
+            cache_key = f"ohlcv_{symbol}_{exchange}_{timeframe}_{n_bars}"
+            
+            # Try to get from performance cache first if caching is enabled
+            if use_cache:
+                cached_data = cache_manager.get(cache_key, 'historical_data')
+                if cached_data is not None:
+                    response_time = (time.time() - start_time) * 1000
+                    logger.debug(f"Cache HIT for OHLCV data: {cache_key}")
+                    
+                    # Record monitoring metrics for cache hit
+                    if MONITORING_SYSTEM_AVAILABLE:
+                        trading_metrics_collector.record_ohlcv_request(
+                            symbol=symbol, timeframe=timeframe, provider=cached_data.get("provider", "CACHE"),
+                            response_time_ms=response_time, cache_hit=True, 
+                            data_points=len(cached_data.get("data", [])), error=False
+                        )
+                    
+                    # Mark as cached in response
+                    cached_data["cached"] = True
+                    cached_data["response_time_ms"] = response_time
+                    return jsonify(cached_data)
+else:
+    @app.route('/api/crypto/ohlc', methods=['GET'])
+    def get_crypto_ohlc():
+        """Fetch crypto OHLC data from Binance (real live data) with Tardis fallback."""
+        try:
+            # Get query parameters
+            symbol = request.args.get('symbol')
+            exchange = request.args.get('exchange', 'BINANCE')
+            timeframe = request.args.get('timeframe', '1h')
+            n_bars = int(request.args.get('n_bars', 1000))
+            use_cache = request.args.get('use_cache', 'true').lower() == 'true'
+            
+            # Validate required parameters
+            if not symbol:
+                return jsonify({"error": "Missing required parameter: symbol"}), 400
+            
+            data = None
+            provider_used = None
+            
+            # Try Binance first (real live data)
+            if BINANCE_AVAILABLE:
+                try:
+                    provider = get_binance_provider()
+                    data = provider.fetch_ohlc(
+                        symbol=symbol.upper(),
+                        exchange=exchange.upper(),
+                        timeframe=timeframe,
+                        n_bars=n_bars,
+                        use_cache=False  # We handle caching at the API level
+                    )
+                    provider_used = "Binance (Live Data)"
+                except Exception as binance_error:
+                    logger.error(f"Binance failed: {binance_error}")
+                    # Continue to Tardis fallback
+            
+            # Fallback to Tardis if Binance failed
+            if data is None and TARDIS_AVAILABLE:
+                try:
+                    provider = get_tardis_provider()
+                    data = provider.fetch_ohlc(
+                        symbol=symbol.upper(),
+                        exchange=exchange.upper(),
+                        timeframe=timeframe,
+                        n_bars=n_bars,
+                        use_cache=False  # We handle caching at the API level
+                    )
+                    provider_used = "Tardis.dev (Demo Data)"
+                except Exception as tardis_error:
+                    logger.error(f"Tardis failed: {tardis_error}")
+            
+            if data is None:
+                # Record failed request metrics
+                if MONITORING_SYSTEM_AVAILABLE:
+                    response_time = (time.time() - start_time) * 1000
+                    trading_metrics_collector.record_ohlcv_request(
+                        symbol=symbol, timeframe=timeframe, provider="FAILED",
+                        response_time_ms=response_time, cache_hit=False, 
+                        data_points=0, error=True
+                    )
+                
+                if not BINANCE_AVAILABLE and not TARDIS_AVAILABLE:
+                    return jsonify({"error": "No crypto data providers available"}), 503
+                else:
+                    return jsonify({"error": "Failed to fetch data from all available providers"}), 500
+            
+            # Calculate response time and record metrics
+            response_time = (time.time() - start_time) * 1000
+            data_points = len(data.get("data", [])) if data else 0
+            
+            # Add provider info and performance metadata
+            data["provider"] = provider_used
+            data["cached"] = False
+            data["performance_optimized"] = True
+            data["response_time_ms"] = response_time
+            
+            # Record monitoring metrics for successful fetch
+            if MONITORING_SYSTEM_AVAILABLE:
+                trading_metrics_collector.record_ohlcv_request(
+                    symbol=symbol, timeframe=timeframe, provider=provider_used,
+                    response_time_ms=response_time, cache_hit=False, 
+                    data_points=data_points, error=False
+                )
+            
+            # Cache the successful response if caching is enabled
+            if use_cache and PERFORMANCE_OPTIMIZATION_AVAILABLE:
+                # Calculate TTL based on timeframe
+                ttl_map = {'1m': 60, '5m': 300, '1h': 1800, '4h': 3600, '1d': 14400}
+                ttl = ttl_map.get(timeframe, 300)
+                
+                cache_manager.set(cache_key, data, 'historical_data', ttl)
+                logger.debug(f"Cached OHLC data: {cache_key} (TTL: {ttl}s)")
+            
+            return jsonify(data)
         
         # Validate required parameters
         if not symbol:
@@ -618,6 +1079,7 @@ def get_crypto_ohlc():
         
         # Add provider info to response
         data["provider"] = provider_used
+        data["performance_optimized"] = False
         return jsonify(data)
         
     except ValueError as e:

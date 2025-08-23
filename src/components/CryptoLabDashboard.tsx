@@ -88,11 +88,11 @@ const CryptoLabDashboard: React.FC<CryptoLabDashboardProps> = ({ onNavigate }) =
 
   const loadDashboardData = async () => {
     try {
-      // Load real strategies from our API
-      const strategiesResponse = await fetch('http://localhost:5007/api/strategies');
+      // Load real strategies from our API - Epic 7
+      const strategiesResponse = await fetch('http://localhost:5007/api/v1/strategies/list?limit=20');
       const strategiesData = await strategiesResponse.json();
       
-      if (strategiesData.success) {
+      if (strategiesData.status === 'success') {
         const realStrategies = strategiesData.strategies;
         const validStrategies = realStrategies.filter((s: any) => s.validation_status === 'valid');
         
@@ -143,11 +143,11 @@ const CryptoLabDashboard: React.FC<CryptoLabDashboardProps> = ({ onNavigate }) =
 
       // Load real market data from Binance API
       try {
-        const marketResponse = await fetch('http://localhost:5007/api/market/overview');
+        const marketResponse = await fetch('http://localhost:5007/api/v1/market/overview');
         const marketData = await marketResponse.json();
         
-        if (marketData.success && marketData.data.tickers) {
-          const realMarketData: MarketData[] = Object.entries(marketData.data.tickers).map(([symbol, ticker]: [string, any]) => ({
+        if (marketData.status === 'success' && marketData.market_overview.tickers) {
+          const realMarketData: MarketData[] = Object.entries(marketData.market_overview.tickers).map(([symbol, ticker]: [string, any]) => ({
             symbol: symbol,
             price: ticker.price,
             change: ticker.change,

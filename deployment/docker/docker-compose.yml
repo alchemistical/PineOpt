@@ -3,39 +3,49 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile.backend
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.backend
     container_name: pineopt-backend
     ports:
-      - "5001:5001"
+      - "5007:5007"
     environment:
       - FLASK_ENV=production
-      - PORT=5001
-      - PYTHONPATH=/app
+      - API_PORT=5007
+      - PYTHONPATH=/app:/app/backend
+      - DATABASE_URL=sqlite:///app/database/pineopt_unified.db
+      - ENABLE_MONITORING=true
+      - ENABLE_CACHING=true
+      - ENABLE_RATE_LIMITING=true
+      - LOG_LEVEL=INFO
     volumes:
-      - ./database:/app/database
-      - ./outputs:/app/outputs
-      - ./uploads:/app/uploads
+      - ../../database:/app/database
+      - ../../outputs:/app/outputs
+      - ../../uploads:/app/uploads
       - backend_logs:/app/logs
+      - monitoring_data:/app/monitoring
     networks:
       - pineopt-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/"]
+      test: ["CMD", "curl", "-f", "http://localhost:5007/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 60s
 
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
+      context: ../../
+      dockerfile: deployment/docker/Dockerfile.frontend
     container_name: pineopt-frontend
     ports:
-      - "80:80"
+      - "3000:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=production
+      - VITE_API_BASE_URL=http://localhost:5007/api
     networks:
       - pineopt-network
     restart: unless-stopped
@@ -44,7 +54,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 20s
+      start_period: 30s
 
   # Optional: Database service for production
   redis:

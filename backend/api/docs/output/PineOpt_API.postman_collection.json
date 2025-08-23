@@ -1,0 +1,505 @@
+{
+  "info": {
+    "name": "PineOpt API - Epic 7: API Architecture Rationalization",
+    "description": "\n# PineOpt API Documentation\n\n**Epic 7: API Architecture Rationalization** - Complete API reference for the consolidated PineOpt trading strategy platform.\n\n## Features\n- **Consolidated Architecture**: 5 unified blueprints replacing 13+ scattered route files\n- **Production Middleware**: Rate limiting, error handling, logging, and CORS\n- **Standardized Responses**: Consistent JSON format across all endpoints\n- **Health Monitoring**: Comprehensive service health checks\n- **Strategy Management**: Pine Script conversion and backtesting\n\n## Architecture Overview\nThis API follows a microservice-inspired blueprint architecture with production-ready middleware:\n- **Health Services**: System monitoring and status\n- **Market Data Services**: Real-time and historical market data\n- **Strategy Services**: Strategy CRUD operations and validation\n- **Conversion Services**: Pine Script to Python conversion\n- **Backtesting Services**: Strategy performance analysis\n\n## Authentication\nCurrently in development mode. Production authentication will be added in future sprints.\n\n## Rate Limiting\n- **Global Limits**: 100 requests/minute, 2000 requests/hour per client\n- **Headers**: Rate limit info included in response headers\n- **Bypass**: Health check endpoints excluded from rate limiting\n\n## Error Handling\nAll errors return standardized JSON format with:\n- **Timestamp**: ISO 8601 timestamp\n- **Error Type**: Categorized error type\n- **Request Info**: Method, path, and endpoint context\n- **Epic Context**: Epic 7 project identification\n            ",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5007",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "description": "System health monitoring and status endpoints",
+      "item": [
+        {
+          "name": "Basic health check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ]
+            },
+            "description": "Returns basic service health status"
+          }
+        },
+        {
+          "name": "Detailed health check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health/detailed",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health",
+                "detailed"
+              ]
+            },
+            "description": "Returns detailed system health metrics including CPU, memory, and database status"
+          }
+        },
+        {
+          "name": "Performance metrics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/health/metrics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health",
+                "metrics"
+              ]
+            },
+            "description": "Returns API performance metrics (placeholder - will be implemented in Sprint 3)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Market Data",
+      "description": "Real-time and historical market data services",
+      "item": [
+        {
+          "name": "Market data API information",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/market/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "market"
+              ]
+            },
+            "description": "Returns available market data endpoints and capabilities"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Strategies",
+      "description": "Strategy management, validation, and CRUD operations",
+      "item": [
+        {
+          "name": "Strategy management API information",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/strategies/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "strategies"
+              ]
+            },
+            "description": "Returns available strategy management endpoints"
+          }
+        },
+        {
+          "name": "List all strategies",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/strategies/list",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "strategies",
+                "list"
+              ]
+            },
+            "description": "Returns paginated list of all strategies"
+          }
+        },
+        {
+          "name": "Get strategy by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/strategies/{id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "strategies",
+                "{id}"
+              ]
+            },
+            "description": "Returns detailed strategy information"
+          }
+        },
+        {
+          "name": "Update strategy",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/strategies/{id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "strategies",
+                "{id}"
+              ]
+            },
+            "description": "Updates an existing strategy"
+          }
+        },
+        {
+          "name": "Delete strategy",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/strategies/{id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "strategies",
+                "{id}"
+              ]
+            },
+            "description": "Deletes a strategy by ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Conversions",
+      "description": "Pine Script to Python conversion services",
+      "item": [
+        {
+          "name": "Conversion API information",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversions/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conversions"
+              ]
+            },
+            "description": "Returns available Pine Script conversion endpoints and capabilities"
+          }
+        },
+        {
+          "name": "Conversion service health",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversions/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conversions",
+                "health"
+              ]
+            },
+            "description": "Returns health status of conversion services"
+          }
+        },
+        {
+          "name": "Analyze Pine Script strategy",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversions/analyze",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conversions",
+                "analyze"
+              ]
+            },
+            "description": "Analyzes Pine Script code and provides insights",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pine_code\": \"//@version=5\\nstrategy(\\\"Test Strategy\\\", overlay=true)\\nsma = ta.sma(close, 20)\\nif close > sma\\n    strategy.entry(\\\"Long\\\", strategy.long)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Convert Pine Script (working converter)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversions/convert/working",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conversions",
+                "convert",
+                "working"
+              ]
+            },
+            "description": "Converts Pine Script to Python using the working converter"
+          }
+        },
+        {
+          "name": "List available indicators",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/conversions/indicators",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "conversions",
+                "indicators"
+              ]
+            },
+            "description": "Returns list of supported technical indicators for conversion"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Backtests",
+      "description": "Strategy backtesting and performance analysis",
+      "item": [
+        {
+          "name": "Backtest API information",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/backtests/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "backtests"
+              ]
+            },
+            "description": "Returns available backtesting endpoints and capabilities"
+          }
+        },
+        {
+          "name": "Backtest service health",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/backtests/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "backtests",
+                "health"
+              ]
+            },
+            "description": "Returns health status of backtesting services"
+          }
+        },
+        {
+          "name": "Run strategy backtest",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/backtests/run",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "backtests",
+                "run"
+              ]
+            },
+            "description": "Executes backtest for a given strategy",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"strategy_id\": \"test_strategy\",\n  \"symbol\": \"BTCUSDT\",\n  \"timeframe\": \"1h\",\n  \"start_date\": \"2024-01-01\",\n  \"end_date\": \"2024-12-31\",\n  \"initial_capital\": 10000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List available trading pairs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/backtests/pairs/available",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "backtests",
+                "pairs",
+                "available"
+              ]
+            },
+            "description": "Returns list of available trading pairs for backtesting"
+          }
+        },
+        {
+          "name": "Backtest history",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/backtests/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "backtests",
+                "history"
+              ]
+            },
+            "description": "Returns history of previous backtests"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Middleware",
+      "description": "Rate limiting, logging, and CORS configuration endpoints",
+      "item": [
+        {
+          "name": "Rate limit status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/rate-limit/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "rate-limit",
+                "status"
+              ]
+            },
+            "description": "Returns current rate limiting status for the client"
+          }
+        },
+        {
+          "name": "CORS configuration",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cors/config",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cors",
+                "config"
+              ]
+            },
+            "description": "Returns current CORS configuration"
+          }
+        },
+        {
+          "name": "CORS functionality test",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/cors/test",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "cors",
+                "test"
+              ]
+            },
+            "description": "Test endpoint for CORS functionality validation"
+          }
+        },
+        {
+          "name": "Logging configuration",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/logs/config",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "logs",
+                "config"
+              ]
+            },
+            "description": "Returns current logging middleware configuration"
+          }
+        }
+      ]
+    }
+  ]
+}

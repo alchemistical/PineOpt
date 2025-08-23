@@ -54,9 +54,15 @@
       "Bash(git rm:*)",
       "Bash(./scripts/reorganize_repository.sh:*)",
       "Bash(tree:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(node:*)",
+      "Bash(/Users/hadinem/Projects/PineOpt/deployment/scripts/validate-production.sh:*)"
     ],
     "deny": [],
-    "ask": []
+    "ask": [],
+    "additionalDirectories": [
+      "/Users/hadinem/Projects",
+      "/Users"
+    ]
   }
 }

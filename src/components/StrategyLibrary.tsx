@@ -122,10 +122,10 @@ const StrategyLibrary: React.FC<StrategyLibraryProps> = ({ onStrategySelect, onR
       params.append('limit', '20');
       params.append('offset', (reset ? 0 : currentPage * 20).toString());
       
-      const response = await fetch(`http://localhost:5007/api/strategies?${params}`);
+      const response = await fetch(`http://localhost:5007/api/v1/strategies/list?${params}`);
       const data = await response.json();
       
-      if (!response.ok || !data.success) {
+      if (!response.ok || data.status !== 'success') {
         throw new Error(data.error || 'Failed to load strategies');
       }
       
@@ -162,13 +162,13 @@ const StrategyLibrary: React.FC<StrategyLibraryProps> = ({ onStrategySelect, onR
     }
     
     try {
-      const response = await fetch(`http://localhost:5007/api/strategies/${strategyId}`, {
+      const response = await fetch(`http://localhost:5007/api/v1/strategies/${strategyId}`, {
         method: 'DELETE'
       });
       
       const data = await response.json();
       
-      if (!response.ok || !data.success) {
+      if (!response.ok || data.status !== 'success') {
         throw new Error(data.error || 'Failed to delete strategy');
       }
       
@@ -197,7 +197,7 @@ const StrategyLibrary: React.FC<StrategyLibraryProps> = ({ onStrategySelect, onR
       setSelectedStrategy(strategy);
       setShowProfileModal(true);
 
-      const response = await fetch(`http://localhost:5007/api/strategies/${strategy.id}/profile`, {
+      const response = await fetch(`http://localhost:5007/api/v1/strategies/${strategy.id}/profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
