@@ -46,7 +46,14 @@
       "WebFetch(domain:pineify.app)",
       "WebFetch(domain:pynescript.readthedocs.io)",
       "Bash(chmod:*)",
-      "Bash(./scripts/run-tests.sh:*)"
+      "Bash(./scripts/run-tests.sh:*)",
+      "WebFetch(domain:pynescript.readthedocs.io)",
+      "Bash(pynescript parse-and-dump:*)",
+      "Bash(sed:*)",
+      "Bash(find:*)",
+      "Bash(git rm:*)",
+      "Bash(./scripts/reorganize_repository.sh:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []
